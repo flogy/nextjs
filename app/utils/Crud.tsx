@@ -1,6 +1,5 @@
 import prisma from './prismaClient'
 
-// https://youtu.be/58NL3oAjOcs?t=1000
 
 export const queryUsers = async () => {
   try{

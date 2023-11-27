@@ -67,6 +67,7 @@ const FlowChartEditor = () => {
 
   const onNameChange = (event, id) => {
     console.log(event, id)
+    console.log(nodes) //immer eines hinterher
   }
 
 
