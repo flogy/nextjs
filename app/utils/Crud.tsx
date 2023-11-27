@@ -32,8 +32,8 @@ export const createUser = async () => {
   try{
     const query = await prisma.user.create({
       data: {
-        email: "test@testddsmail.com",
-        password: "hither4e55",
+        email: "test@test.com",
+        password: "superpw2",
         userId: 56
       }
     })
@@ -54,7 +54,7 @@ export const updateUser = async () => {
         userId: 56
       },
       data: {
-        email: 'katzi@katz.com'
+        email: 'test@test2.com'
       }
     })
     return result
