@@ -1,5 +1,5 @@
-import React, { memo, useCallback } from 'react';
-import { Handle, useReactFlow, useStoreApi, Position } from 'reactflow';
+import React, { memo, useCallback, useState } from 'react';
+import { Handle, useReactFlow, useStoreApi, Position, useUpdateNodeInternals } from 'reactflow';
 
 
 export const StartNode = function CustomNode({}) {
@@ -17,12 +17,26 @@ export const StartNode = function CustomNode({}) {
 }
 
 export const RoutineNode = function CustomNode({id, data}) {
+  const updateNodeInternals = useUpdateNodeInternals();
+  const [label, setLabel] = useState<string>(data.label)
+
+  const onLabelInputBlur = () => {
+    data.label = label
+    updateNodeInternals(id);
+  }
+
   return (
     <>
       <div className="routine-node-parent">
         <div className="routine-node-child">
-          <input type="text" placeholder={data.label} onBlur={(e) => data.onNameChange(e, id)} className='w-24 text-center bg-transparent text-white text-2xl nodrag'/>
-          {/* <p className="node-text-white">Routine</p> */}
+          <input 
+            type="text" 
+            placeholder='...'
+            value={label}
+            onChange={e => setLabel(e.target.value)}
+            onBlur={onLabelInputBlur} 
+            className='w-24 text-center bg-transparent text-white text-2xl nodrag'
+          />
         </div>
         <Handle type="target" position={Position.Left} id="in1" />
         <Handle type="source" position={Position.Bottom} id="out1" />
