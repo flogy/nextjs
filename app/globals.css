@@ -43,7 +43,7 @@
 }
 
 .routine-node-child{
-    @apply flex flex-col justify-center items-center w-28 h-12 border-r-4 border-l-4;
+    @apply flex flex-col justify-center items-center w-28 h-12 border-r-4 border-l-4 object-scale-down;
 }
 
 .input-label{

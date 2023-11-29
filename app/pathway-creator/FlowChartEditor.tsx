@@ -84,7 +84,8 @@ const FlowChartEditor = () => {
         id: getId(),
         type,
         position,
-        ...(type === 'routine' && {data: {label: ''}})
+        data: {label: '', width: 8} //only pass when needed
+        //...(type === 'routine' && {data: {label: ''}})
       };
 
       setNodes((nodes) => nodes.concat(newNode));
