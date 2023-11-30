@@ -43,7 +43,7 @@ const Sidebar = ({pathList, setPathList, currentPath, setCurrentPath}) => {
 
 
   return (
-    <div className={`bg-dark-purple h-screen p-5 pt-8 ${open ? "w-72" : "w-20"} duration-300 relative`}>
+    <div className={`bg-dark-purple h-[calc(100%-128px)] p-5 pt-8 ${open ? "w-72" : "w-20"} duration-300 relative`}>
       <BsArrowLeftShort 
         className={`bg-white text-black text-3xl rounded-full absolute -right-3 top-9 border border-black cursor-pointer ${!open && "rotate-180"} duration-300`}
         onClick={() => {setOpen(!open)}}/>

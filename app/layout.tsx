@@ -13,11 +13,11 @@ export const metadata: Metadata = {
 export default function RootLayout({children,}: {children: React.ReactNode}) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>
+      <body className='h-screen'>
           <Navbar />
-          <div>
+          <main className='h-[calc(100%-128px)]'>
             {children}
-          </div>
+          </main>
       </body>
     </html>
   )
