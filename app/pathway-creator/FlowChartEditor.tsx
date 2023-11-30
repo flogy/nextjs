@@ -14,6 +14,7 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import {StartNode, RoutineNode, OperationNode, SubroutineNode, ConditionNode, AdminNode, EndNode} from './CustomNodes'
 import { MdOutlineEdit, MdOutlineEditOff } from "react-icons/md";
+import { overviewNodes, overviewEdges} from "./TemplateFlows"
 
 const nodeTypes = {
   start: StartNode,
@@ -25,12 +26,15 @@ const nodeTypes = {
   end: EndNode
 };
 
-
 const short = require('short-uuid')
 const getId = () => `${short.generate()}`;
 
+const FlowChartEditor = ({level, editorLocked, selectedPrimNode, setSelectedPrimNode, setSelectedSecNode}) => {
+  console.log(level)
+  // level: <'primay' or 'seconday'> identifies the flowchart editor in the GUI (primary = top)
+  // selectedPrimNode/setSelectedPrimNode: node selected in primary editor
+  // setSelectedSecNode: node selected in seconday editor
 
-const FlowChartEditor = () => {
   const reactFlowWrapper = useRef(null);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -42,45 +46,19 @@ const FlowChartEditor = () => {
 
   //custom:
   const rendercount = useRef(0)
-
+  
+  const edgesWithUpdatedType = edges.map((edge) => {
+    edge.type = 'smoothstep'
+    return edge
+  })
 
   useEffect(() => {
     rendercount.current = rendercount.current + 1;
   });
 
-  // const updateNodes = (nodeid) => {
-  //   const newNodes = nodes.map((node) => {
-  //   if (nodeid === node.id && !node.data.selected){
-  //     node.data.selected = true
-  //     node.position = {
-  //           x: node.position.x + 1,
-  //           y: node.position.y
-  //           };
-  //   } else if (nodeid === node.id && node.data.selected){
-  //     node.data.selected = false
-  //     node.position = {
-  //           x: node.position.x - 1,
-  //           y: node.position.y
-  //           };
-  //   }
-  //   return node
-  //   })
-  //   console.log('new nodes: ', newNodes)
-  //   setNodes(newNodes)
-  // }
-
-
-  useOnSelectionChange({
-    onChange: ({ nodes }) => {
-      setSelectedNodes(nodes.map((node) => node.id))
-      //nodes.map((node) => updateNodes(node.id))
-      },      
-  })
-
-  const edgesWithUpdatedType = edges.map((edge) => {
-    edge.type = 'smoothstep'
-    return edge
-  })
+  useEffect(() => {
+    triggerARerender()
+  },[editorLocked])
 
 
   useEffect(() => {
@@ -88,10 +66,6 @@ const FlowChartEditor = () => {
     
     const newNodes = nodes.map((node) => {
       editableCanvas ? node.data.disabled = false : node.data.disabled = true
-      node.position = { // move right; this appears to be needed to update the custom nodes upon changing their data.selected attribute
-            x: node.position.x + totheLeft,
-            y: node.position.y
-          };
       if (selectedNodes.includes(node.id) && !node.data.selected){
         node.data.selected = true
       } else {
@@ -101,10 +75,49 @@ const FlowChartEditor = () => {
     })
 
     setNodes(newNodes)
-    setToTheLeft(totheLeft * -1) //move back
+    triggerARerender()
   }, [selectedNodes, editableCanvas])
 
 
+  useOnSelectionChange({
+    onChange: ({ nodes }) => {
+      if (editableCanvas){return}
+      setSelectedNodes(nodes.map((node) => node.id))
+
+      if (nodes.length === 1){ //nodes should always only contain max 1 entry
+        if (level === 'primary'){
+          setSelectedPrimNode(nodes[0])} 
+        if (level === 'secondary'){
+          setSelectedSecNode(nodes[0])
+          }
+      } else {
+        setSelectedPrimNode(null)
+        setSelectedSecNode(null)
+      }
+    },      
+  })
+
+  const triggerARerender = () => {
+    //Reactflow sometimes doesn't 'react' to changes, this forces a re-render
+    const newNodes = nodes.map((node) => {
+      node.position = {
+            x: node.position.x + totheLeft,
+            y: node.position.y
+          };
+      return node
+    })
+    setNodes(newNodes)
+    setToTheLeft(totheLeft * -1) //move back
+  }
+
+  const handleEditableCanvasClick = () => {
+    if (editableCanvas == false){
+      setSelectedNodes([])
+      if (level === 'primary'){setSelectedPrimNode(null)} 
+      if (level === 'secondary'){setSelectedSecNode(null)}
+    }
+    setEditableCanvas(!editableCanvas)
+  }
 
   const onConnect = useCallback((params) => {
     setEdges((edges) => addEdge(params, edges))
@@ -127,13 +140,16 @@ const FlowChartEditor = () => {
         return;
       }
 
+      // check if we're in locked state
+      if (editorLocked === true){return}
+
       const position = reactFlowInstance.screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
       });
 
       const newNode = {
-        id: `${type}_${getId()}`,
+        id: `${level}_${type}_${getId()}`,
         type,
         position,
         data: {label: `${type.charAt(0).toUpperCase() + type.slice(1)}`, 
@@ -153,14 +169,43 @@ const FlowChartEditor = () => {
 
   const printNodes = () => {
     console.log('current nodes:')
+    console.log('locked? ', editorLocked)
     console.log(nodes)
+
+    // setNodes(overviewNodes)
+    // setNodes(overviewEdges)
+
+    console.log(nodes)
+    const all_nodes = nodes.map((node) => {
+      let nde = {
+        id: node.id, 
+        type: node.type, 
+        data: {
+          label: node.data.label, 
+          width: node.data.width, 
+          selected: node.data.selected, 
+          disabled: node.data.disabled
+        },
+        position: {
+          x: node.position.x,
+          y: node.position.y
+        }
+      }
+      return nde
+    })
+    console.log(all_nodes)
+    console.log(edges)
+
+
+
   }
+
 
 
   const onSave = useCallback(() => {
     if (reactFlowInstance) {
       const flow = reactFlowInstance.toObject();
-      localStorage.setItem('temporaryFlowId', JSON.stringify(flow)); //replace with SQL
+      localStorage.setItem(`${level}_temporaryFlowId`, JSON.stringify(flow)); //replace with SQL
     }
   }, [reactFlowInstance, nodes]);
 
@@ -168,7 +213,7 @@ const FlowChartEditor = () => {
 
   const onRestore = useCallback(() => {
     const restoreFlow = async () => {
-      const flow = JSON.parse(localStorage.getItem('temporaryFlowId')); //replace with SQL
+      const flow = JSON.parse(localStorage.getItem(`${level}_temporaryFlowId`)); //replace with SQL
       //console.log(flow)
 
       if (flow) {
@@ -187,8 +232,6 @@ const FlowChartEditor = () => {
   console.log("iteration: ", rendercount.current)
   //nodes.map((node) => console.log(`${node.id} ${node.data.selected}`))
 
-
-
   return (
       <div className={'w-full h-full'} ref={reactFlowWrapper}> 
         <ReactFlow
@@ -202,6 +245,12 @@ const FlowChartEditor = () => {
           onDrop={onDrop}
           minZoom={0.2}
           onDragOver={onDragOver}
+          edgesUpdatable={!editorLocked}
+          edgesFocusable={!editorLocked}
+          nodesDraggable={!editorLocked}
+          nodesConnectable={!editorLocked}
+          nodesFocusable={!editorLocked}
+          elementsSelectable={!editorLocked}
           >
           <Controls />
           <Panel position="top-right">
@@ -209,7 +258,7 @@ const FlowChartEditor = () => {
             <button className="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700" onClick={onRestore}>restore</button>
             <button className="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700" onClick={printNodes}>current node array</button>
             <button className={`py-2 px-2 text-2xl focus:outline-none ${editableCanvas ? 'bg-green-100' : 'bg-gray-100'} rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700`}
-              onClick={() => setEditableCanvas(!editableCanvas)}>
+              onClick={handleEditableCanvasClick}>
               {editableCanvas ? <MdOutlineEdit/> : <MdOutlineEditOff/>}
             </button>
           </Panel>
@@ -219,12 +268,14 @@ const FlowChartEditor = () => {
   );
 };
 
-export default () => (
+export default ({level, editorLocked, selectedPrimNode, setSelectedPrimNode, setSelectedSecNode}) => (
   <ReactFlowProvider>
-    <FlowChartEditor />
+    <FlowChartEditor
+      level={level}
+      editorLocked={editorLocked}
+      selectedPrimNode={selectedPrimNode}
+      setSelectedPrimNode={setSelectedPrimNode}
+      setSelectedSecNode={setSelectedSecNode}
+    />
   </ReactFlowProvider>
 );
-
-
-
-

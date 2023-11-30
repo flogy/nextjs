@@ -14,7 +14,6 @@ export default function RootLayout({children,}: {children: React.ReactNode}) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className='h-screen'>
-          <Navbar />
           <main className='h-[calc(100%-128px)]'>
             {children}
           </main>
