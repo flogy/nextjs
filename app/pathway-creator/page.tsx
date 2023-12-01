@@ -1,7 +1,8 @@
 "use client"
 import React, {useEffect, useState} from 'react'
 import FlowChartEditor from './FlowChartEditor'
-import Sidebar from '../components/navigation/sidebar/Sidebar'
+import SidebarPathInactive from '../components/navigation/sidebar/SidebarPathInactive'
+import SidebarPathActive from '../components/navigation/sidebar/SidebarPathActive'
 
 const page = () => {
   const [pathSaved, setPathSaved] = useState(true)
@@ -20,8 +21,8 @@ const page = () => {
 
 
   return (
-    <div className='flex flex-grow'>
-      <Sidebar 
+    <div className='h-full flex flex-grow'>
+      <SidebarPathActive
         pathList={pathList}
         setPathList={setPathList}
         currentPath={currentPath}

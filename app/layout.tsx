@@ -14,7 +14,7 @@ export default function RootLayout({children,}: {children: React.ReactNode}) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className='h-screen'>
-          <main className='h-[calc(100%-128px)]'>
+          <main className='h-full w-full'>
             {children}
           </main>
       </body>

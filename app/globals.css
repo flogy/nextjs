@@ -43,7 +43,7 @@
 }
 
 .routine-node-child{
-    @apply flex flex-col justify-center items-center w-28 h-12 border-r-4 border-l-4 object-scale-down;
+    @apply flex flex-col justify-center items-center w-28 h-12 border-r-4 border-l-4;
 }
 
 .input-label{
@@ -52,4 +52,17 @@
 
 .input-field{
     @apply block w-full rounded-md border-0 py-1 px-2 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6;
+}
+
+.sidebar-button{
+    @apply flex items-center whitespace-nowrap w-full border border-transparent rounded-md bg-light-white hover:border-white mt-4 py-2;
+}
+
+.sidebar-button-icon{
+    @apply text-white text-lg float-left cursor-pointer;
+}
+
+.sidebar-button-text{
+    @apply text-base bg-transparent w-full text-white focus:outline-none;
+
 }
