@@ -55,7 +55,7 @@
 }
 
 .sidebar-button{
-    @apply flex items-center whitespace-nowrap w-full border border-transparent rounded-md bg-light-white hover:border-white mt-4 py-2;
+    @apply flex items-center whitespace-nowrap w-full border-transparent rounded-md hover:bg-white/30 mt-4 py-2;
 }
 
 .sidebar-button-icon{
@@ -63,6 +63,6 @@
 }
 
 .sidebar-button-text{
-    @apply text-base bg-transparent w-full text-white focus:outline-none;
+    @apply text-base bg-transparent w-full text-white hover:outline-none;
 
 }

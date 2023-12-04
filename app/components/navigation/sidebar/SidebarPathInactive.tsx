@@ -1,25 +1,19 @@
-"use client"
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
-import { BsArrowLeftShort, BsSearch } from "react-icons/bs";
+import { BsArrowLeftShort} from "react-icons/bs";
 import { PiPathFill } from "react-icons/pi";
-import { FaRegFolderOpen } from "react-icons/fa";
-import { FaRegSave } from "react-icons/fa";
-import { FaRegPlusSquare } from "react-icons/fa";
-import { FaFileImport } from "react-icons/fa";
-import { FaRegTrashAlt } from "react-icons/fa";
-import CreateNewPath from "./CreateNewPath";
-import OpenExistingPath from "./OpenExistingPath";
-import shortUUID from "short-uuid";
-const short = require('short-uuid')
-
-const SidebarPathInactive = ({pathList, setPathList, currentPath, setCurrentPath}) => {
+import { FaRegFolderOpen, FaRegPlusSquare, FaFileImport } from "react-icons/fa";
+import SubMenuOpen from "./utils/SubMenuOpen";
+import SubMenuCreate from "./utils/SubMenuCreate";
+import SubMenuImport from "./utils/SubMenuImport";
 
 
-
-  const [open, setOpen]  = useState(true)
-  const [createOpen, setCreateOpen] = useState(false)
-  const [openPath, setOpenPath] = useState(false)
+const SidebarPathInactive = ({setPathOpen, setCurrentPath}) => {
+  const [open, setOpen]  = useState(true) //for showing/hiding sidebar
+  const [openMenu, setOpenMenu] = useState(false)
+  const [importMenu, setImportMenu] = useState(false)
+  const [createMenu, setCreateMenu] = useState(false)
+  const [selectedPath, setSelectedPath] = useState(null)
 
   
   // const handleNewPathSubmit = (e) => {
@@ -39,7 +33,6 @@ const SidebarPathInactive = ({pathList, setPathList, currentPath, setCurrentPath
   //   setCreateOpen(false)
   // }
 
-
   return (
     <div className={`bg-dark-purple p-5 pt-8 ${open ? "w-72" : "w-20"} duration-300 relative`}>
       <BsArrowLeftShort 
@@ -51,22 +44,42 @@ const SidebarPathInactive = ({pathList, setPathList, currentPath, setCurrentPath
       </div>
 
       {/* open an existing path */}
-      <button className={`sidebar-button ${!open ? "px-2.5" : "px-4"} `} onClick={() => {setOpen(true);setOpenPath(!openPath)}}>
+      <button className={`sidebar-button ${!open ? "px-2.5" : "px-4"} ${openMenu ? "bg-white/30" : "bg-white/10"} `} onClick={() => setOpenMenu(!openMenu)}>
         <FaRegFolderOpen className={`sidebar-button-icon ${open && "mr-2"}`} />
-        <p className={`sidebar-button-text ${!open && "hidden"}`}>Open</p>
+        <p className={`sidebar-button-text ${!open && "hidden"}`}>Open..</p>
       </button>
+
+      {open && openMenu ?
+        <SubMenuOpen
+          setCurrentPath={setCurrentPath}
+          setPathOpen={setPathOpen}
+          selectedPath={selectedPath}
+          setSelectedPath={setSelectedPath}
+        />
+      : null}
+
 
       {/* fixme import path from somewhere */}
-      <button className={`sidebar-button ${!open ? "px-2.5" : "px-4"}`} onClick={() => {setOpen(true);setOpenPath(!openPath)}}>
+      <button className={`sidebar-button ${!open ? "px-2.5" : "px-4"} ${importMenu ? "bg-white/30" : "bg-white/10"}`} onClick={() => setImportMenu(!importMenu)}>
         <FaFileImport className={`sidebar-button-icon ${open && "mr-2"}`} />
-        <p className={`sidebar-button-text ${!open && "hidden"}`}>Import</p>
+        <p className={`sidebar-button-text ${!open && "hidden"}`}>Import..</p>
       </button>
 
+      {open && importMenu ?
+        <SubMenuImport
+        />
+      : null}
+
       {/* create new path */}
-      <button className={`sidebar-button ${!open ? "px-2.5" : "px-4"}`} onClick={() => {setOpen(true);setCreateOpen(!createOpen)}}>
+      <button className={`sidebar-button ${!open ? "px-2.5" : "px-4"} ${createMenu ? "bg-white/30" : "bg-white/10"} `} onClick={() => setCreateMenu(!createMenu)}>
         <FaRegPlusSquare className={`sidebar-button-icon ${open && "mr-2"}`} />
-        <p className={`sidebar-button-text ${!open && "hidden"}`}>Create New</p>
+        <p className={`sidebar-button-text ${!open && "hidden"}`}>Create New..</p>
       </button>
+
+      {open && createMenu ?
+        <SubMenuCreate
+        />
+      : null}
 
       {/* <div className={`mt-6 text-white text-md mb-4 ${!open && "hidden"}`}>
         <p className="text-xs text-gray-400">Current Path:</p>

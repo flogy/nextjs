@@ -5,29 +5,35 @@ import SidebarPathInactive from '../components/navigation/sidebar/SidebarPathIna
 import SidebarPathActive from '../components/navigation/sidebar/SidebarPathActive'
 
 const page = () => {
-  const [pathSaved, setPathSaved] = useState(true)
-  const [pathList, setPathList] = useState([{uuid: '9Hpt1sckPcroQozmFEQAPZ', name: "Overview Path", parentId: null}])
-  const [currentPath, setCurrentPath] = useState({uuid: '9Hpt1sckPcroQozmFEQAPZ', name: "Overview Path", parentId: null})
+  //sidebar hooks
+  const [pathOpen, setPathOpen] = useState(false) //determines the switch between SidebarPathInactive and SidebarPathActive
+  const [currentPath, setCurrentPath] = useState(null)
 
+  //editor hooks
   const [selectedPrimNode, setSelectedPrimNode] = useState(null)
   const [selectedSecNode, setSelectedSecNode] = useState(null)
   const [editorLocked, setEditorLocked] = useState(false)
 
-  console.log('Coming to you from page: ', (selectedSecNode && selectedSecNode.data))
 
   useEffect(() => {
     selectedPrimNode ? setEditorLocked(false) : setEditorLocked(true)
   },[selectedPrimNode])
 
-
   return (
     <div className='h-full flex flex-grow'>
+
+      {pathOpen ?
       <SidebarPathActive
-        pathList={pathList}
-        setPathList={setPathList}
+        setPathOpen={setPathOpen}
         currentPath={currentPath}
+      />
+      :
+      <SidebarPathInactive
+        setPathOpen={setPathOpen}
         setCurrentPath={setCurrentPath}
       />
+      }
+      
       <div className='flex flex-col flex-1 gap-6'>
         <div className='flex basis-2/6 flex-col border-4 border-slate-300'>
           <h2 className='text-3xl text-center bg-slate-300'>Overview Path</h2>

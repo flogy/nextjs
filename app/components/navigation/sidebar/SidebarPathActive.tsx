@@ -14,7 +14,7 @@ import OpenExistingPath from "./OpenExistingPath";
 import shortUUID from "short-uuid";
 const short = require('short-uuid')
 
-const SidebarPathActive = ({}) => {
+const SidebarPathActive = ({setPathOpen, currentPath}) => {
 
   const onDragStart = (event, nodeType) => {
     event.dataTransfer.setData('application/reactflow', nodeType);
@@ -75,7 +75,7 @@ const SidebarPathActive = ({}) => {
       </button>
 
       {/* close path */}
-      <button className={`sidebar-button ${!open ? "px-2.5" : "px-4"}`} onClick={() => console.log('close path')}>
+      <button className={`sidebar-button ${!open ? "px-2.5" : "px-4"}`} onClick={() => setPathOpen(false)}>
         <FaRegWindowClose className={`sidebar-button-icon ${open && "mr-2"}`} />
         <p className={`sidebar-button-text ${!open && "hidden"}`}>Close</p>
       </button>
