@@ -1,18 +1,15 @@
 "use client"
 import React from "react";
-import { useState } from "react";
-import { BsArrowLeftShort, BsSearch } from "react-icons/bs";
+import { useState, useRef } from "react";
+import { BsArrowLeftShort} from "react-icons/bs";
 import { PiPathFill } from "react-icons/pi";
-import { FaRegFolderOpen } from "react-icons/fa";
-import { FaRegSave } from "react-icons/fa";
-import { FaRegPlusSquare } from "react-icons/fa";
-import { FaRegWindowClose } from "react-icons/fa";
-import { FaRegTrashAlt } from "react-icons/fa";
-import { FaBuffer } from "react-icons/fa";
-import CreateNewPath from "./CreateNewPath";
-import OpenExistingPath from "./OpenExistingPath";
-import shortUUID from "short-uuid";
-const short = require('short-uuid')
+import { FaRegWindowClose, FaRegTrashAlt, FaRegSave, FaBuffer} from "react-icons/fa";
+import Popup from "reactjs-popup";
+
+// import CreateNewPath from "./CreateNewPath";
+// import OpenExistingPath from "./OpenExistingPath";
+// import shortUUID from "short-uuid";
+// const short = require('short-uuid')
 
 const SidebarPathActive = ({setPathOpen, currentPath}) => {
 
@@ -21,6 +18,8 @@ const SidebarPathActive = ({setPathOpen, currentPath}) => {
     event.dataTransfer.effectAllowed = 'move';
   };
 
+  const delete_popup_ref = useRef();
+  const close_popup_ref = useRef();
   const [open, setOpen]  = useState(true)
   const [createOpen, setCreateOpen] = useState(false)
   const [openPath, setOpenPath] = useState(false)
@@ -43,11 +42,18 @@ const SidebarPathActive = ({setPathOpen, currentPath}) => {
   //   setCreateOpen(false)
   // }
 
+function handleClose(){
+  console.log("i close")
+  close_popup_ref.current.close();
+}
+
+function handleDelete(){
+  console.log("i delte")
+  delete_popup_ref.current.close();
+}
+
 
   return (
-
-
-
     <div className={`bg-dark-purple p-5 pt-8 ${open ? "w-72" : "w-20"} duration-300 relative`}>
       <BsArrowLeftShort 
         className={`bg-white text-black text-3xl rounded-full absolute -right-3 top-9 border border-black cursor-pointer ${!open && "rotate-180"} duration-300`}
@@ -62,29 +68,67 @@ const SidebarPathActive = ({setPathOpen, currentPath}) => {
         <p>PathName</p>
       </aside>
 
+      {/* ${importMenu ? "bg-white/30" : "bg-white/10"} */}
+
       {/* start from template */}
-      <button className={`sidebar-button ${!open ? "px-2.5" : "px-4"}`} onClick={() => console.log('templates')}>
+      <button className={`sidebar-button bg-white/10 ${!open ? "px-2.5" : "px-4"}`} onClick={() => console.log('templates')}>
         <FaBuffer className={`sidebar-button-icon ${open && "mr-2"}`} />
         <p className={`sidebar-button-text ${!open && "hidden"}`}>Templates</p>
       </button>
 
       {/* save path */}
-      <button className={`sidebar-button ${!open ? "px-2.5" : "px-4"}`} onClick={() => console.log('save path')}>
+      <button className={`sidebar-button bg-white/10 ${!open ? "px-2.5" : "px-4"}`} onClick={() => console.log('save path')}>
         <FaRegSave className={`sidebar-button-icon ${open && "mr-2"}`} />
         <p className={`sidebar-button-text ${!open && "hidden"}`}>Save</p>
       </button>
 
       {/* close path */}
-      <button className={`sidebar-button ${!open ? "px-2.5" : "px-4"}`} onClick={() => setPathOpen(false)}>
-        <FaRegWindowClose className={`sidebar-button-icon ${open && "mr-2"}`} />
-        <p className={`sidebar-button-text ${!open && "hidden"}`}>Close</p>
-      </button>
+      <Popup 
+        trigger={
+          <button className={`sidebar-button bg-white/10 ${!open ? "px-2.5" : "px-4"}`}>
+            <FaRegWindowClose className={`sidebar-button-icon ${open && "mr-2"}`} />
+            <p className={`sidebar-button-text ${!open && "hidden"}`}>Close</p>
+          </button>
+        } 
+        position={open? 'bottom center' : 'right center'}
+        closeOnDocumentClick
+        ref={close_popup_ref}
+        >
+          <div className="w-60 h-min-20 bg-white rounded-md flex flex-col p-1">
+            <p className="p-1">Do you want to save the changes?</p>
+            <span className="flex gap-2">
+              <button onClick={handleClose} className="flex-1 bg-gray-400 rounded-md hover:bg-gray-300 mt-2">Yes</button>
+              <button onClick={() => close_popup_ref.current.close()} className="flex-1 bg-gray-400 rounded-md hover:bg-red-500 mt-2">No</button>
+            </span>
+          </div>
+      </Popup>
+
+
 
       {/* delete path */}
-      <button className={`sidebar-button ${!open ? "px-2.5" : "px-4"}`} onClick={() => console.log('delete path')}>
-        <FaRegTrashAlt className={`sidebar-button-icon ${open && "mr-2"}`} />
-        <p className={`sidebar-button-text ${!open && "hidden"}`}>Delete</p>
-      </button>
+      <Popup 
+        trigger={
+          <button className={`sidebar-button bg-white/10 hover:bg-red-500 ${!open ? "px-2.5" : "px-4"}`}>
+            <FaRegTrashAlt className={`sidebar-button-icon ${open && "mr-2"}`} />
+            <p className={`sidebar-button-text ${!open && "hidden"}`}>Delete</p>
+          </button>
+        } 
+        position={open? 'bottom center' : 'right center'}
+        closeOnDocumentClick
+        ref={delete_popup_ref}
+        >
+          <div className="w-60 h-min-20 bg-white rounded-md flex flex-col p-1">
+            <p className="p-1">Are you sure you want to delete this path?</p>
+            <span className="flex gap-2">
+              <button onClick={() => delete_popup_ref.current.close()} className="flex-1 bg-gray-400 rounded-md hover:bg-gray-300 mt-2">No</button>
+              <button onClick={handleDelete} className="flex-1 bg-gray-400 rounded-md hover:bg-gray-300 mt-2">Yes</button>
+            </span>
+          </div>
+      </Popup>
+
+
+      
+
 
 
       <div className={`flex flex-col items-center gap-4 mt-10 duration-300 ${!open && "scale-0 gap-12"}`}>

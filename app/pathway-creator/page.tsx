@@ -19,19 +19,20 @@ const page = () => {
     selectedPrimNode ? setEditorLocked(false) : setEditorLocked(true)
   },[selectedPrimNode])
 
+  console.log('path open? ', pathOpen)
   return (
     <div className='h-full flex flex-grow'>
-
+      
       {pathOpen ?
-      <SidebarPathActive
-        setPathOpen={setPathOpen}
-        currentPath={currentPath}
-      />
+        <SidebarPathActive
+          setPathOpen={setPathOpen}
+          currentPath={currentPath}
+        />
       :
-      <SidebarPathInactive
-        setPathOpen={setPathOpen}
-        setCurrentPath={setCurrentPath}
-      />
+        <SidebarPathInactive
+          setPathOpen={setPathOpen}
+          setCurrentPath={setCurrentPath}
+        />
       }
       
       <div className='flex flex-col flex-1 gap-6'>

@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-const SubMenuCreate = ({setCurrentPath}) => {
+const SubMenuCreate = ({setCurrentPath, setPathOpen}) => {
   const [perfGroup, setPerfGroup] = useState('')
   const [name, setName] = useState('')
 
@@ -23,6 +23,8 @@ const SubMenuCreate = ({setCurrentPath}) => {
       setPerfGroup('')
       setName('')
     }
+    setCurrentPath('')
+    setPathOpen(true)
   }
 
 

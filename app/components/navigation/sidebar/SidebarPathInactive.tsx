@@ -13,7 +13,7 @@ const SidebarPathInactive = ({setPathOpen, setCurrentPath}) => {
   const [openMenu, setOpenMenu] = useState(false)
   const [importMenu, setImportMenu] = useState(false)
   const [createMenu, setCreateMenu] = useState(false)
-  const [selectedPath, setSelectedPath] = useState(null)
+  //const [selectedPath, setSelectedPath] = useState(null)
 
   
   // const handleNewPathSubmit = (e) => {
@@ -53,8 +53,6 @@ const SidebarPathInactive = ({setPathOpen, setCurrentPath}) => {
         <SubMenuOpen
           setCurrentPath={setCurrentPath}
           setPathOpen={setPathOpen}
-          selectedPath={selectedPath}
-          setSelectedPath={setSelectedPath}
         />
       : null}
 
@@ -67,6 +65,8 @@ const SidebarPathInactive = ({setPathOpen, setCurrentPath}) => {
 
       {open && importMenu ?
         <SubMenuImport
+          setCurrentPath={setCurrentPath}
+          setPathOpen={setPathOpen}
         />
       : null}
 
@@ -78,6 +78,8 @@ const SidebarPathInactive = ({setPathOpen, setCurrentPath}) => {
 
       {open && createMenu ?
         <SubMenuCreate
+          setCurrentPath={setCurrentPath}
+          setPathOpen={setPathOpen}
         />
       : null}
 

@@ -2,7 +2,7 @@ import ComboboxSelect from './ComboboxSelect'
 import useSWR from 'swr'
 import { useState } from 'react'
 
-export default function SubMenuOpen({setCurrentPath, setPathOpen, selectedPath, setSelectedPath}) {
+export default function SubMenuOpen({setCurrentPath, setPathOpen}) {
 
   var paths = []
   const fetcher = (url:URL) => fetch(url).then((res) => res.json());
@@ -16,14 +16,18 @@ export default function SubMenuOpen({setCurrentPath, setPathOpen, selectedPath, 
   ))
   }
 
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    setPathOpen(true)
+  }
   
   return (
     <>
-      <form className="flex flex-col bg-white mt-2 rounded-md p-1" onSubmit={e => console.log(e)}>
+      <form className="flex flex-col bg-white mt-2 rounded-md p-1" onSubmit={e => handleSubmit(e)}>
         <div className='w-full'>
           <ComboboxSelect 
             items={paths}
-            setSelectedItem={setSelectedPath}
+            setSelectedItem={setCurrentPath}
           />
         </div>
         <button className=" bg-gray-400 rounded-md hover:bg-gray-300 mt-2">Open</button>

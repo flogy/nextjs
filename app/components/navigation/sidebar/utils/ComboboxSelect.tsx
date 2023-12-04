@@ -24,7 +24,7 @@ const ComboboxSelect = ({items, setSelectedItem}) => {
         <div className='pt-1'>
           <label className='text-md'>Search Database:</label>
           <div className='flex'>
-            <input className='flex flex-grow border h-8 p-1' {...getInputProps()} />
+            <input className='flex flex-grow border h-8 p-1' {...getInputProps()} required/>
             <button className='flex flex-grow w-2 justify-center border bg-gray-100'{...getToggleButtonProps()} aria-label={'toggle menu'}>&#8595;</button>
           </div>
           <ul {...getMenuProps()} className='max-h-96 overflow-y-scroll list-none bg-white relative'>
