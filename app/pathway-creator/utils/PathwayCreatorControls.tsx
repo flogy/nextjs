@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import useSWR from 'swr';
 import { Panel } from 'reactflow';
 import Popup from 'reactjs-popup';
@@ -6,35 +6,39 @@ import { MdOutlineEdit, MdOutlineEditOff } from "react-icons/md";
 import { BsDatabaseDown, BsDatabaseAdd } from "react-icons/bs";
 import ComboboxSelect from '@/app/components/navigation/sidebar/utils/ComboboxSelect';
 
-const PathwayCreatorControls = ({level, onSaveTemplate, onRestoreTemplate, editableCanvas, handleEditableCanvasClick, onSave, onRestore, printNodes}) => {
+const PathwayCreatorControls = ({level, reactFlowInstance, setReactFlowInstance, onRestore,  editableCanvas, handleEditableCanvasClick, onSave, printNodes}) => {
   const load_popup_ref = useRef()
   const save_popup_ref = useRef()
   const [templateTitle, setTemplateTitle] = useState('')
-  const [templateToLoad, setTemplateToLoad] = useState('')
+  const [templateToLoad, setTemplateToLoad] = useState(null)
+  const [allTemplatePaths, setAllTemplatePaths] = useState([])
 
-
-
-  // fetch available paths
-  var templates = []
+  // fetch available template paths
   const fetcher = (url:URL) => fetch(url).then((res) => res.json());
   const { data, isLoading, error } = useSWR(`/api/templates?level=${level}`, fetcher)
-  if (error) return <div className='text-white'>An error occured.</div>
-  if (!data) return <div className='text-white'>Loading ...</div>
-  if (data){
-    console.log(data)
-      templates = data["templates"].map(item =>(
-        {key: item.id, value: `${item.name}`}
+
+  useEffect(() => {
+    if(data){setAllTemplatePaths(data.templates)}
+  },[data])
+  
+  //for dropdown menu (load template)
+  const templates = allTemplatePaths.map(path => (
+    {key: path.id, value: path.name}
   ))
-  }
 
+  //set reactFlowInstance according to DB version
   function handleLoadTemplate(){
-    console.log('loading template')
-    console.log(templateToLoad)
-    //onRestoreTemplate(template_id)
+    const path = allTemplatePaths.filter(path => (path.id === templateToLoad.key))
+    console.log('to load: ', path)
+    onRestore(path.reactFlowInstance)
+    setTemplateToLoad({})
+    load_popup_ref.current.close()
   }
 
+  //save reactFlowInstance to DB - continue here...
   function handleSaveTemplate(e){
     e.preventDefault()
+    console.log(templateTitle)
     //onSaveTemplate(name: templateTitle, level:level)
     setTemplateTitle('')
     save_popup_ref.current.close()

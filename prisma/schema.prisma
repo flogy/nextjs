@@ -16,11 +16,10 @@ model Paths {
 }
 
 model Templates {
-  id              Int @id @default(autoincrement()) //fixme: replace with uuid
-  name            String
-  level           String //primary or secondary
-  nodes           String  @default("[]")
-  edges           String  @default("[]")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                Int @id @default(autoincrement()) //fixme: replace with uuid
+  name              String
+  level             String //primary or secondary
+  reactFlowInstance String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }

@@ -6,13 +6,11 @@ import { NextRequest } from "next/server"
 
 export async function GET(req: NextRequest) {
   const level = req.nextUrl.searchParams.get("level")
-  const templates = await prisma.templates.findMany(
-    {
-    where: {
-      level: level, //primary or secondary
-    }
-    }
-  )
+  const id = req.nextUrl.searchParams.get("id")
+
+  var templates = []
+  if (level){templates = await prisma.templates.findMany({where: {level: level}})}
+  if (id){templates = await prisma.templates.findMany({where: {id: id}})}
 
   console.log(templates)
   return Response.json({ templates })
@@ -21,7 +19,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(request: Request, res: Response) {
   const data = await request.json()
-  
+
   const templates = await prisma.templates.create(
     {data: {
       name: data.name,

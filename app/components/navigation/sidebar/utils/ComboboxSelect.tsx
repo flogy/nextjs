@@ -5,20 +5,18 @@ const ComboboxSelect = ({items, label, setSelectedItem}) => {
   return (
     <>
       <Downshift
-        onChange={(selection) => console.log('you selected: ', selection)}
+        onChange={(selection) => setSelectedItem(selection)}
         itemToString={(item) => (item ? item.value : '')}
       >
       {({
         getInputProps,
         getItemProps,
-        getLabelProps,
         getMenuProps,
         getToggleButtonProps,
         isOpen,
         inputValue,
         highlightedIndex,
         selectedItem,
-        getRootProps,
       }) => (
 
         <div className='pt-1'>

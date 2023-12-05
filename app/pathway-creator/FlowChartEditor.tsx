@@ -1,5 +1,6 @@
 "use client"
 import React, { useState, useRef, useCallback, useEffect } from 'react';
+import useSWR from 'swr';
 import ReactFlow, {
   ReactFlowProvider,
   addEdge,
@@ -199,8 +200,6 @@ const FlowChartEditor = ({level, editorLocked, selectedPrimNode, setSelectedPrim
 
   }
 
-
-
   const onSave = useCallback(() => {
     if (reactFlowInstance) {
       const flow = reactFlowInstance.toObject();
@@ -210,10 +209,10 @@ const FlowChartEditor = ({level, editorLocked, selectedPrimNode, setSelectedPrim
 
 
 
-  const onRestore = useCallback(() => {
+  const onRestore = useCallback((flow) => {
     const restoreFlow = async () => {
-      const flow = JSON.parse(localStorage.getItem(`${level}_temporaryFlowId`)); //replace with SQL
-      //console.log(flow)
+      // const flow = JSON.parse(localStorage.getItem(`${level}_temporaryFlowId`)); //replace with SQL
+      // //console.log(flow)
 
       if (flow) {
         const { x = 0, y = 0, zoom = 1 } = flow.viewport;
@@ -228,29 +227,6 @@ const FlowChartEditor = ({level, editorLocked, selectedPrimNode, setSelectedPrim
   }, [setNodes, setViewport]);
 
 
-  const onSaveTemplate = useCallback(() => {
-    if (reactFlowInstance) {
-      const flow = reactFlowInstance.toObject();
-      localStorage.setItem(`${level}_temporaryFlowId`, JSON.stringify(flow)); //replace with SQL
-    }
-  }, [reactFlowInstance, nodes]);
-
-
-  const onRestoreTemplate = useCallback(() => {
-    const restoreFlow = async () => {
-      const flow = JSON.parse(localStorage.getItem(`${level}_temporaryFlowId`)); //replace with SQL
-      //console.log(flow)
-
-      if (flow) {
-        const { x = 0, y = 0, zoom = 1 } = flow.viewport;
-
-        setNodes(flow.nodes || []);
-        setEdges(flow.edges || []);
-        setViewport({ x, y, zoom });
-      }
-    };
-    restoreFlow();
-  }, [setNodes, setViewport]);
 
 
 
@@ -281,12 +257,12 @@ const FlowChartEditor = ({level, editorLocked, selectedPrimNode, setSelectedPrim
           <Controls />
           <PathwayCreatorControls
             level={level}
-            onSaveTemplate={onSaveTemplate}
-            onRestoreTemplate={onRestoreTemplate}
+            reactFlowInstance={setReactFlowInstance} 
+            setReactFlowInstance={setReactFlowInstance}
+            onRestore={onRestore}
             editableCanvas={editableCanvas}
             handleEditableCanvasClick={handleEditableCanvasClick}
             onSave={onSave}
-            onRestore={onRestore}
             printNodes={printNodes}
           /> {/*custom component in utils folder*/}
           <Background color="#aaa" gap={16} />
