@@ -17,15 +17,14 @@ export async function GET(req: NextRequest) {
   //return NextResponse.json({data})
 }
 
-export async function POST(request: Request, res: Response) {
+export async function POST(request: Request) {
   const data = await request.json()
 
   const templates = await prisma.templates.create(
     {data: {
-      name: data.name,
+      name: data.templateTitle,
       level: data.level,
-      nodes: data.nodes,
-      edges: data.edges
+      reactFlowInstance: data.flow_str,
     }})
 
   return NextResponse.json(data)

@@ -77,7 +77,7 @@ function handleDelete(){
       {/* ${importMenu ? "bg-white/30" : "bg-white/10"} */}
 
       {/* start from template */}
-      <button className={`sidebar-button bg-white/10 ${!open ? "px-2.5" : "px-4"}`} onClick={() => setOpenMenuTemplates(!openMenuTemplates)}>
+      {/* <button className={`sidebar-button bg-white/10 ${!open ? "px-2.5" : "px-4"}`} onClick={() => setOpenMenuTemplates(!openMenuTemplates)}>
         <FaBuffer className={`sidebar-button-icon ${open && "mr-2"}`} />
         <p className={`sidebar-button-text ${!open && "hidden"}`}>Templates</p>
       </button>
@@ -87,7 +87,14 @@ function handleDelete(){
           setCurrentPath={setCurrentPath}
           setPathOpen={setPathOpen}
         />
-      : null}
+      : null} */}
+
+      {/* save path */}
+      <button className={`sidebar-button bg-white/10 ${!open ? "px-2.5" : "px-4"}`} onClick={() => console.log('save as path')}>
+        <FaRegSave className={`sidebar-button-icon ${open && "mr-2"}`} />
+        <p className={`sidebar-button-text ${!open && "hidden"}`}>Save as..</p>
+      </button>
+
 
       {/* save path */}
       <button className={`sidebar-button bg-white/10 ${!open ? "px-2.5" : "px-4"}`} onClick={() => console.log('save path')}>

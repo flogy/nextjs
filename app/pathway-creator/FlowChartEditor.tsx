@@ -157,6 +157,8 @@ const FlowChartEditor = ({level, editorLocked, selectedPrimNode, setSelectedPrim
                selected: false,
                disabled: false
               } 
+
+        // (...data, selected: true)      
         //...(type === 'routine' && {data: {label: ''}})
       };
 
@@ -200,10 +202,24 @@ const FlowChartEditor = ({level, editorLocked, selectedPrimNode, setSelectedPrim
 
   }
 
-  const onSave = useCallback(() => {
+  const onSaveTemplate = useCallback(async (templateTitle, level) => {
     if (reactFlowInstance) {
       const flow = reactFlowInstance.toObject();
-      localStorage.setItem(`${level}_temporaryFlowId`, JSON.stringify(flow)); //replace with SQL
+      //localStorage.setItem(`${level}_temporaryFlowId`, JSON.stringify(flow)); //replace with SQL
+      const flow_str = JSON.stringify(flow)
+      const submitData = {templateTitle, level, flow_str}
+
+    const res = await fetch('http://localhost:3000/api/templates',
+      {
+        method: 'POST',
+        body: JSON.stringify(submitData),
+        headers: {
+          'content-type': 'application/json'
+        }
+      })
+    if (!res.ok){console.log("Debug: POST template path didn't work please try again.")}
+
+
     }
   }, [reactFlowInstance, nodes]);
 
@@ -257,13 +273,10 @@ const FlowChartEditor = ({level, editorLocked, selectedPrimNode, setSelectedPrim
           <Controls />
           <PathwayCreatorControls
             level={level}
-            reactFlowInstance={setReactFlowInstance} 
-            setReactFlowInstance={setReactFlowInstance}
+            onSaveTemplate={onSaveTemplate}
             onRestore={onRestore}
             editableCanvas={editableCanvas}
             handleEditableCanvasClick={handleEditableCanvasClick}
-            onSave={onSave}
-            printNodes={printNodes}
           /> {/*custom component in utils folder*/}
           <Background color="#aaa" gap={16} />
         </ReactFlow>

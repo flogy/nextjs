@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import useSWR from 'swr';
+import useSWR, { useSWRConfig } from 'swr'
 import { Panel } from 'reactflow';
 import Popup from 'reactjs-popup';
 import { MdOutlineEdit, MdOutlineEditOff } from "react-icons/md";
 import { BsDatabaseDown, BsDatabaseAdd } from "react-icons/bs";
 import ComboboxSelect from '@/app/components/navigation/sidebar/utils/ComboboxSelect';
+import { revalidatePath } from 'next/cache'
 
-const PathwayCreatorControls = ({level, reactFlowInstance, setReactFlowInstance, onRestore,  editableCanvas, handleEditableCanvasClick, onSave, printNodes}) => {
+const PathwayCreatorControls = ({level, onSaveTemplate, onRestore,  editableCanvas, handleEditableCanvasClick}) => {
+  const { mutate } = useSWRConfig() //should in theory revalidate template list but doesn't
   const load_popup_ref = useRef()
   const save_popup_ref = useRef()
   const [templateTitle, setTemplateTitle] = useState('')
@@ -22,7 +24,7 @@ const PathwayCreatorControls = ({level, reactFlowInstance, setReactFlowInstance,
   },[data])
   
   //for dropdown menu (load template)
-  const templates = allTemplatePaths.map(path => (
+  var templates = allTemplatePaths.map(path => (
     {key: path.id, value: path.name}
   ))
 
@@ -30,22 +32,21 @@ const PathwayCreatorControls = ({level, reactFlowInstance, setReactFlowInstance,
   function handleLoadTemplate(){
     const path = allTemplatePaths.filter(path => (path.id === templateToLoad.key))
     console.log('to load: ', path)
-    onRestore(path.reactFlowInstance)
+    onRestore(JSON.parse(path[0].reactFlowInstance))
     setTemplateToLoad({})
     load_popup_ref.current.close()
   }
 
   //save reactFlowInstance to DB - continue here...
-  function handleSaveTemplate(e){
+  async function handleSaveTemplate(e){
     e.preventDefault()
-    console.log(templateTitle)
-    //onSaveTemplate(name: templateTitle, level:level)
+    onSaveTemplate(templateTitle, level)
     setTemplateTitle('')
+    mutate('/api/templates')
     save_popup_ref.current.close()
-    console.log('saving the template')
   }
 
-
+  console.log('hi I just rerendered')
   return (
     <Panel position="top-right">
       <div className='flex flex-col w-12 items-end gap-2'>
@@ -109,13 +110,6 @@ const PathwayCreatorControls = ({level, reactFlowInstance, setReactFlowInstance,
               </form>
             </div>
         </Popup>
-
-
-
-
-        <button className="py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700" onClick={onSave}>save</button>
-        <button className="py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700" onClick={onRestore}>restore</button>
-        <button className="py-2.5 px-5 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700" onClick={printNodes}>current node array</button>
       </div>
     </Panel>
   )
