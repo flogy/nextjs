@@ -2,7 +2,7 @@ import ComboboxSelect from './ComboboxSelect'
 import useSWR from 'swr'
 import { useState } from 'react'
 
-export default function SubMenuOpen({setCurrentPath, setPathOpen}) {
+export default function SubMenuTemplates({setCurrentPath, setPathOpen}) {
 
   var paths = []
   const fetcher = (url:URL) => fetch(url).then((res) => res.json());
@@ -20,9 +20,9 @@ export default function SubMenuOpen({setCurrentPath, setPathOpen}) {
     e.preventDefault()
     setPathOpen(true)
   }
-
-  const label = 'Search Database:'
   
+  const label = 'Search Templates:'
+
   return (
     <>
       <form className="flex flex-col bg-white mt-2 rounded-md p-1" onSubmit={e => handleSubmit(e)}>

@@ -5,13 +5,14 @@ import { BsArrowLeftShort} from "react-icons/bs";
 import { PiPathFill } from "react-icons/pi";
 import { FaRegWindowClose, FaRegTrashAlt, FaRegSave, FaBuffer} from "react-icons/fa";
 import Popup from "reactjs-popup";
+import SubMenuTemplates from "./utils/SubMenuTemplates";
 
 // import CreateNewPath from "./CreateNewPath";
 // import OpenExistingPath from "./OpenExistingPath";
 // import shortUUID from "short-uuid";
 // const short = require('short-uuid')
 
-const SidebarPathActive = ({setPathOpen, currentPath}) => {
+const SidebarPathActive = ({setPathOpen, setCurrentPath}) => {
 
   const onDragStart = (event, nodeType) => {
     event.dataTransfer.setData('application/reactflow', nodeType);
@@ -21,6 +22,8 @@ const SidebarPathActive = ({setPathOpen, currentPath}) => {
   const delete_popup_ref = useRef();
   const close_popup_ref = useRef();
   const [open, setOpen]  = useState(true)
+  const [openMenuTemplates, setOpenMenuTemplates] = useState(false)
+
   const [createOpen, setCreateOpen] = useState(false)
   const [openPath, setOpenPath] = useState(false)
 
@@ -44,14 +47,17 @@ const SidebarPathActive = ({setPathOpen, currentPath}) => {
 
 function handleClose(){
   console.log("i close")
+  //save changes
   close_popup_ref.current.close();
+  setPathOpen(false)
 }
 
 function handleDelete(){
   console.log("i delte")
   delete_popup_ref.current.close();
+  setPathOpen(false)
 }
-
+  console.log('sidebar render')
 
   return (
     <div className={`bg-dark-purple p-5 pt-8 ${open ? "w-72" : "w-20"} duration-300 relative`}>
@@ -71,10 +77,17 @@ function handleDelete(){
       {/* ${importMenu ? "bg-white/30" : "bg-white/10"} */}
 
       {/* start from template */}
-      <button className={`sidebar-button bg-white/10 ${!open ? "px-2.5" : "px-4"}`} onClick={() => console.log('templates')}>
+      <button className={`sidebar-button bg-white/10 ${!open ? "px-2.5" : "px-4"}`} onClick={() => setOpenMenuTemplates(!openMenuTemplates)}>
         <FaBuffer className={`sidebar-button-icon ${open && "mr-2"}`} />
         <p className={`sidebar-button-text ${!open && "hidden"}`}>Templates</p>
       </button>
+
+      {open && openMenuTemplates ?
+        <SubMenuTemplates
+          setCurrentPath={setCurrentPath}
+          setPathOpen={setPathOpen}
+        />
+      : null}
 
       {/* save path */}
       <button className={`sidebar-button bg-white/10 ${!open ? "px-2.5" : "px-4"}`} onClick={() => console.log('save path')}>

@@ -65,8 +65,6 @@ const SidebarPathInactive = ({setPathOpen, setCurrentPath}) => {
 
       {open && importMenu ?
         <SubMenuImport
-          setCurrentPath={setCurrentPath}
-          setPathOpen={setPathOpen}
         />
       : null}
 

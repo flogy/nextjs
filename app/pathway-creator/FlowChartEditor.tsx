@@ -9,12 +9,11 @@ import ReactFlow, {
   useOnSelectionChange,
   Background,
   Controls,
-  Panel,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import {StartNode, RoutineNode, OperationNode, SubroutineNode, ConditionNode, AdminNode, EndNode} from './CustomNodes'
-import { MdOutlineEdit, MdOutlineEditOff } from "react-icons/md";
 import { overviewNodes, overviewEdges} from "./TemplateFlows"
+import PathwayCreatorControls from './utils/PathwayCreatorControls';
 
 const nodeTypes = {
   start: StartNode,
@@ -229,6 +228,33 @@ const FlowChartEditor = ({level, editorLocked, selectedPrimNode, setSelectedPrim
   }, [setNodes, setViewport]);
 
 
+  const onSaveTemplate = useCallback(() => {
+    if (reactFlowInstance) {
+      const flow = reactFlowInstance.toObject();
+      localStorage.setItem(`${level}_temporaryFlowId`, JSON.stringify(flow)); //replace with SQL
+    }
+  }, [reactFlowInstance, nodes]);
+
+
+  const onRestoreTemplate = useCallback(() => {
+    const restoreFlow = async () => {
+      const flow = JSON.parse(localStorage.getItem(`${level}_temporaryFlowId`)); //replace with SQL
+      //console.log(flow)
+
+      if (flow) {
+        const { x = 0, y = 0, zoom = 1 } = flow.viewport;
+
+        setNodes(flow.nodes || []);
+        setEdges(flow.edges || []);
+        setViewport({ x, y, zoom });
+      }
+    };
+    restoreFlow();
+  }, [setNodes, setViewport]);
+
+
+
+
   console.log("iteration: ", rendercount.current)
   //nodes.map((node) => console.log(`${node.id} ${node.data.selected}`))
 
@@ -253,15 +279,16 @@ const FlowChartEditor = ({level, editorLocked, selectedPrimNode, setSelectedPrim
           elementsSelectable={!editorLocked}
           >
           <Controls />
-          <Panel position="top-right">
-            <button className="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700" onClick={onSave}>save</button>
-            <button className="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700" onClick={onRestore}>restore</button>
-            <button className="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700" onClick={printNodes}>current node array</button>
-            <button className={`py-2 px-2 text-2xl focus:outline-none ${editableCanvas ? 'bg-white' : 'bg-gray-100'} rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700`}
-              onClick={handleEditableCanvasClick}>
-              {editableCanvas ? <MdOutlineEdit/> : <MdOutlineEditOff/>}
-            </button>
-          </Panel>
+          <PathwayCreatorControls
+            level={level}
+            onSaveTemplate={onSaveTemplate}
+            onRestoreTemplate={onRestoreTemplate}
+            editableCanvas={editableCanvas}
+            handleEditableCanvasClick={handleEditableCanvasClick}
+            onSave={onSave}
+            onRestore={onRestore}
+            printNodes={printNodes}
+          /> {/*custom component in utils folder*/}
           <Background color="#aaa" gap={16} />
         </ReactFlow>
       </div>
