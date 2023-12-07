@@ -40,7 +40,7 @@ const PathwayCreatorControls = ({level, onSaveTemplate, onRestore,  editableFlow
   //save reactFlowInstance to DB - continue here...
   async function handleSaveTemplate(e){
     e.preventDefault()
-    onSaveTemplate(templateTitle, level)
+    onSaveTemplate(level, templateTitle)
     setTemplateTitle('')
     mutate('/api/templates')
     save_popup_ref.current.close()

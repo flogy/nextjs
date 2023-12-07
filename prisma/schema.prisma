@@ -8,15 +8,45 @@ datasource db {
 }
 
 model Paths {
-  id              Int @id @default(autoincrement()) //fixme: replace with uuid
+  id              Int           @id @default(autoincrement()) //fixme: replace with uuid
   leistungsgruppe String
   name            String
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  PrimaryPath     PrimaryPath[]
 }
 
+model PrimaryPath {
+  id                Int             @id @default(autoincrement()) //fixme: replace with uuid
+  path              Paths           @relation(fields: [parentPath], references: [id])
+  parentPath        Int
+  reactFlowInstance String
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  SecondaryPath     SecondaryPath[]
+}
+
+model SecondaryPath {
+  id                Int         @id @default(autoincrement()) //fixme: replace with uuid
+  primaryPath       PrimaryPath @relation(fields: [parentNode], references: [id])
+  parentNode        Int
+  reactFlowInstance String
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+}
+
+// model NodeAttributes {
+//     id                Int         @id @default(autoincrement()) //fixme: replace with uuid
+//     precessor         Int
+//     successor         Int
+//     cmp_id            Int
+//     description       String
+//     outcome           String
+// }
+
+
 model Templates {
-  id                Int @id @default(autoincrement()) //fixme: replace with uuid
+  id                Int      @id @default(autoincrement()) //fixme: replace with uuid
   name              String
   level             String //primary or secondary
   reactFlowInstance String

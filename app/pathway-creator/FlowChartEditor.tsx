@@ -64,13 +64,15 @@ const FlowChartEditor = ({level, selectedPrimNode, setSelectedPrimNode, setSelec
     //deletable is false for all nodes when editableFlowCanvas is false (so that elements in the sub-flowchart can be deleted without deleting the elmenent in the parent)
 
     const newNodes = nodes.map((node) => {
-
+      var nde;
       if(selectedNodes.includes(node.id)){
-        node.data =  {...node.data, selected: true} 
+        nde = {...node}
+        nde.data =  {...nde.data, selected: true} 
       } else {
-        node.data = {...node.data, selected: false}
+        nde = {...node}
+        nde.data =  {...nde.data, selected: false} 
       }
-      return node
+      return nde
     })
 
     setNodes(newNodes)
@@ -81,22 +83,21 @@ const FlowChartEditor = ({level, selectedPrimNode, setSelectedPrimNode, setSelec
   useEffect(() => {    
     //when a node is selected we set its selection property to true and the deletable property to false
     //deletable is false for all nodes when editableFlowCanvas is false (so that elements in the sub-flowchart can be deleted without deleting the elmenent in the parent)
-    setSelectedNodes([])
-    if (level === 'primary') setSelectedPrimNode(null)
-    if (level === 'secondary') setSelectedSecNode(null)
-
     const newNodes = nodes.map((node) => {
       var nde;
       if(editableFlowCanvas){
         nde = {...node, deletable: true}
-        nde.data = { ...nde.data, disabled:false }
+        nde.data = { ...nde.data, disabled:false, selected: false}
       } else {
         nde = {...node, deletable: false}
-        nde.data = {...nde.data, disabled:true}
+        nde.data = {...nde.data, disabled:true, selected: false}
       }
       return nde
     })
 
+    setSelectedNodes([])
+    if (level === 'primary') setSelectedPrimNode(null)
+    if (level === 'secondary') setSelectedSecNode(null)
     setNodes(newNodes)
 
   }, [editableFlowCanvas])
@@ -166,12 +167,12 @@ const FlowChartEditor = ({level, selectedPrimNode, setSelectedPrimNode, setSelec
     [reactFlowInstance, nodes],
   );
 
-
-  const onSaveTemplate = useCallback(async (templateTitle, level) => {
+  //continue here: find a way to only use one function for saving templates and paths (primary/secondary)
+  const onSaveTemplate = useCallback(async (level, name) => {
     if (reactFlowInstance) {
       const flow = reactFlowInstance.toObject();
       const flow_str = JSON.stringify(flow)
-      const submitData = {templateTitle, level, flow_str}
+      const submitData = {name, level, flow_str}
 
       const res = await fetch('http://localhost:3000/api/templates',
       {
@@ -184,7 +185,6 @@ const FlowChartEditor = ({level, selectedPrimNode, setSelectedPrimNode, setSelec
       if (!res.ok){console.log("Debug: POST template path didn't work please try again.")}
     }
   }, [reactFlowInstance, nodes]);
-
 
 
   const onRestore = useCallback((flow) => {
@@ -214,12 +214,6 @@ const FlowChartEditor = ({level, selectedPrimNode, setSelectedPrimNode, setSelec
           onDrop={onDrop}
           minZoom={0.2}
           onDragOver={onDragOver}
-          // edgesUpdatable={editableFlowCanvas}
-          // nodesUpdatable={editableFlowCanvas}
-          // edgesFocusable={editableFlowCanvas}
-          // nodesDraggable={editableFlowCanvas}
-          // nodesConnectable={editableFlowCanvas}
-          // elementsSelectable={!editableFlowCanvas}
           >
           <Controls />
           <PathwayCreatorControls
@@ -228,7 +222,7 @@ const FlowChartEditor = ({level, selectedPrimNode, setSelectedPrimNode, setSelec
             onRestore={onRestore}
             editableFlowCanvas={editableFlowCanvas}
             setEditableFlowCanvas={setEditableFlowCanvas}
-          /> {/*custom component in utils folder*/}
+          /> 
           <Background color="#aaa" gap={16} />
         </ReactFlow>
       </div>

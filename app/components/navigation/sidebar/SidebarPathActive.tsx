@@ -89,12 +89,6 @@ function handleDelete(){
         />
       : null} */}
 
-      {/* save path */}
-      <button className={`sidebar-button bg-white/10 ${!open ? "px-2.5" : "px-4"}`} onClick={() => console.log('save as path')}>
-        <FaRegSave className={`sidebar-button-icon ${open && "mr-2"}`} />
-        <p className={`sidebar-button-text ${!open && "hidden"}`}>Save as..</p>
-      </button>
-
 
       {/* save path */}
       <button className={`sidebar-button bg-white/10 ${!open ? "px-2.5" : "px-4"}`} onClick={() => console.log('save path')}>
@@ -146,9 +140,11 @@ function handleDelete(){
           </div>
       </Popup>
 
-
-      
-
+      {/* create a copy */}
+      <button className={`sidebar-button bg-white/10 ${!open ? "px-2.5" : "px-4"}`} onClick={() => console.log('save as path')}>
+        <FaRegSave className={`sidebar-button-icon ${open && "mr-2"}`} />
+        <p className={`sidebar-button-text ${!open && "hidden"}`}>Create a copy..</p>
+      </button>
 
 
       <div className={`flex flex-col items-center gap-4 mt-10 duration-300 ${!open && "scale-0 gap-12"}`}>
