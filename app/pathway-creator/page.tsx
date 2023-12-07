@@ -12,12 +12,6 @@ const page = () => {
   //editor hooks
   const [selectedPrimNode, setSelectedPrimNode] = useState(null)
   const [selectedSecNode, setSelectedSecNode] = useState(null)
-  const [editorLocked, setEditorLocked] = useState(false)
-
-
-  useEffect(() => {
-    selectedPrimNode ? setEditorLocked(false) : setEditorLocked(true)
-  },[selectedPrimNode])
 
   console.log('path open? ', pathOpen)
   return (
@@ -40,7 +34,6 @@ const page = () => {
           <h2 className='text-3xl text-center bg-slate-300'>Overview Path</h2>
           <FlowChartEditor 
             level='primary' //needed
-            editorLocked={false}
             selectedPrimNode={selectedPrimNode}
             setSelectedPrimNode={setSelectedPrimNode} //neded
             setSelectedSecNode={setSelectedSecNode}
@@ -50,7 +43,6 @@ const page = () => {
           <h2 className='text-3xl text-center bg-slate-300'>{selectedPrimNode ? 'Detail View: ' + selectedPrimNode.data.label : 'Subpath'}</h2>
           <FlowChartEditor 
             level={'secondary'} //neded
-            editorLocked={editorLocked}
             selectedPrimNode={selectedPrimNode} //neded
             setSelectedPrimNode={setSelectedPrimNode}
             setSelectedSecNode={setSelectedSecNode} //neded

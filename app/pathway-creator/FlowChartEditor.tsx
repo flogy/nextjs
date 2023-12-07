@@ -5,6 +5,7 @@ import ReactFlow, {
   ReactFlowProvider,
   addEdge,
   useNodesState,
+  applyNodeChanges,
   useEdgesState,
   useReactFlow,
   useOnSelectionChange,
@@ -15,6 +16,7 @@ import 'reactflow/dist/style.css';
 import {StartNode, RoutineNode, OperationNode, SubroutineNode, ConditionNode, AdminNode, EndNode} from './CustomNodes'
 import { overviewNodes, overviewEdges} from "./TemplateFlows"
 import PathwayCreatorControls from './utils/PathwayCreatorControls';
+import { parse } from 'path';
 
 const nodeTypes = {
   start: StartNode,
@@ -29,187 +31,149 @@ const nodeTypes = {
 const short = require('short-uuid')
 const getId = () => `${short.generate()}`;
 
-const FlowChartEditor = ({level, editorLocked, selectedPrimNode, setSelectedPrimNode, setSelectedSecNode}) => {
-  console.log(level)
+const FlowChartEditor = ({level, selectedPrimNode, setSelectedPrimNode, setSelectedSecNode}) => {
   // level: <'primay' or 'seconday'> identifies the flowchart editor in the GUI (primary = top)
   // selectedPrimNode/setSelectedPrimNode: node selected in primary editor
   // setSelectedSecNode: node selected in seconday editor
-
   const reactFlowWrapper = useRef(null);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
   const [selectedNodes, setSelectedNodes] = useState([]);
   const { setViewport } = useReactFlow();
-  const [totheLeft, setToTheLeft] = useState(0.1)
-  const [editableCanvas, setEditableCanvas] = useState(true)
+  const [editableFlowCanvas, setEditableFlowCanvas] = useState(true)
 
-  //custom:
+
+  //keep track of renders
   const rendercount = useRef(0)
+  useEffect(() => {
+    rendercount.current = rendercount.current + 1;
+  });
+  console.log("iteration: ", rendercount.current)
   
+
+  //modify all edges to be of smoothstep type
   const edgesWithUpdatedType = edges.map((edge) => {
     edge.type = 'smoothstep'
     return edge
   })
 
-  useEffect(() => {
-    rendercount.current = rendercount.current + 1;
-  });
 
-  useEffect(() => {
-    triggerARerender()
-  },[editorLocked])
+  useEffect(() => {    
+    //when a node is selected we set its selection property to true and the deletable property to false
+    //deletable is false for all nodes when editableFlowCanvas is false (so that elements in the sub-flowchart can be deleted without deleting the elmenent in the parent)
 
-
-  useEffect(() => {
-    //console.log('Selected nodes: ', selectedNodes)
-    
     const newNodes = nodes.map((node) => {
-      editableCanvas ? node.data.disabled = false : node.data.disabled = true
-      if (selectedNodes.includes(node.id) && !node.data.selected){
-        node.data.selected = true
+
+      if(selectedNodes.includes(node.id)){
+        node.data =  {...node.data, selected: true} 
       } else {
-        node.data.selected = false
+        node.data = {...node.data, selected: false}
       }
       return node
     })
 
     setNodes(newNodes)
-    triggerARerender()
-  }, [selectedNodes, editableCanvas])
+
+  }, [selectedNodes])
+
+
+  useEffect(() => {    
+    //when a node is selected we set its selection property to true and the deletable property to false
+    //deletable is false for all nodes when editableFlowCanvas is false (so that elements in the sub-flowchart can be deleted without deleting the elmenent in the parent)
+    setSelectedNodes([])
+    if (level === 'primary') setSelectedPrimNode(null)
+    if (level === 'secondary') setSelectedSecNode(null)
+
+    const newNodes = nodes.map((node) => {
+      var nde;
+      if(editableFlowCanvas){
+        nde = {...node, deletable: true}
+        nde.data = { ...nde.data, disabled:false }
+      } else {
+        nde = {...node, deletable: false}
+        nde.data = {...nde.data, disabled:true}
+      }
+      return nde
+    })
+
+    setNodes(newNodes)
+
+  }, [editableFlowCanvas])
 
 
   useOnSelectionChange({
+    // when a node was selected we add its ID locally to selectedNodes and depening on which editor we are in also passing it to the parent element
     onChange: ({ nodes }) => {
-      if (editableCanvas){return}
+      if (editableFlowCanvas){return}
       setSelectedNodes(nodes.map((node) => node.id))
-
-      if (nodes.length === 1){ //nodes should always only contain max 1 entry
+      if (nodes.length === 1){ //we only want to handle this case
         if (level === 'primary'){
-          setSelectedPrimNode(nodes[0])} 
+          setSelectedPrimNode(nodes[0])} //for primary (upper) editor
         if (level === 'secondary'){
-          setSelectedSecNode(nodes[0])
+          setSelectedSecNode(nodes[0]) //for secondary (lower) editor
           }
       } else {
         setSelectedPrimNode(null)
         setSelectedSecNode(null)
+        console.log('unexpected length of selectedNodes array.. ', selectedNodes)
       }
     },      
   })
 
-  const triggerARerender = () => {
-    //Reactflow sometimes doesn't 'react' to changes, this forces a re-render
-    const newNodes = nodes.map((node) => {
-      node.position = {
-            x: node.position.x + totheLeft,
-            y: node.position.y
-          };
-      return node
-    })
-    setNodes(newNodes)
-    setToTheLeft(totheLeft * -1) //move back
-  }
-
-  const handleEditableCanvasClick = () => {
-    if (editableCanvas == false){
-      setSelectedNodes([])
-      if (level === 'primary'){setSelectedPrimNode(null)} 
-      if (level === 'secondary'){setSelectedSecNode(null)}
-    }
-    setEditableCanvas(!editableCanvas)
-  }
 
   const onConnect = useCallback((params) => {
+    if (!editableFlowCanvas) return
     setEdges((edges) => addEdge(params, edges))
     },[]
   );
 
 
   const onDragOver = useCallback((event) => {
+    if (!editableFlowCanvas) return
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
-  }, []);
+  },[]);
 
 
   const onDrop = useCallback((event) => {
-      event.preventDefault();
-      const type = event.dataTransfer.getData('application/reactflow');
+    event.preventDefault();
+    const type = event.dataTransfer.getData('application/reactflow');
 
-      // check if the dropped element is valid
-      if (typeof type === 'undefined' || !type) {
-        return;
-      }
+    // check if the dropped element is valid and we can edit
+    if ((typeof type === 'undefined' || !type) && editableFlowCanvas) {
+      return;
+    }
 
-      // check if we're in locked state
-      if (editorLocked === true){return}
+    const position = reactFlowInstance.screenToFlowPosition({
+      x: event.clientX,
+      y: event.clientY,
+    });
 
-      const position = reactFlowInstance.screenToFlowPosition({
-        x: event.clientX,
-        y: event.clientY,
-      });
-
-      const newNode = {
-        id: `${level}_${type}_${getId()}`,
-        type,
-        position,
-        data: {label: `${type.charAt(0).toUpperCase() + type.slice(1)}`, 
-               width: 8,
-               selected: false,
-               disabled: false
-              } 
-
-        // (...data, selected: true)      
-        //...(type === 'routine' && {data: {label: ''}})
-      };
-
-      setNodes((nodes) => nodes.concat(newNode));
-      
+    const newNode = {
+      id: `${level}_${type}_${getId()}`,
+      type,
+      position,
+      deletable: true,
+      data: {label: `${type.charAt(0).toUpperCase() + type.slice(1)}`, 
+              width: 8,
+              selected: false,
+              disabled: false 
+            } 
+    };
+    setNodes((nodes) => nodes.concat(newNode));
     },
     [reactFlowInstance, nodes],
   );
 
 
-  const printNodes = () => {
-    console.log('current nodes:')
-    console.log('locked? ', editorLocked)
-    console.log(nodes)
-
-    // setNodes(overviewNodes)
-    // setNodes(overviewEdges)
-
-    console.log(nodes)
-    const all_nodes = nodes.map((node) => {
-      let nde = {
-        id: node.id, 
-        type: node.type, 
-        data: {
-          label: node.data.label, 
-          width: node.data.width, 
-          selected: node.data.selected, 
-          disabled: node.data.disabled
-        },
-        position: {
-          x: node.position.x,
-          y: node.position.y
-        }
-      }
-      return nde
-    })
-    console.log(all_nodes)
-    console.log(edges)
-
-
-
-  }
-
   const onSaveTemplate = useCallback(async (templateTitle, level) => {
     if (reactFlowInstance) {
       const flow = reactFlowInstance.toObject();
-      //localStorage.setItem(`${level}_temporaryFlowId`, JSON.stringify(flow)); //replace with SQL
       const flow_str = JSON.stringify(flow)
       const submitData = {templateTitle, level, flow_str}
 
-    const res = await fetch('http://localhost:3000/api/templates',
+      const res = await fetch('http://localhost:3000/api/templates',
       {
         method: 'POST',
         body: JSON.stringify(submitData),
@@ -217,22 +181,16 @@ const FlowChartEditor = ({level, editorLocked, selectedPrimNode, setSelectedPrim
           'content-type': 'application/json'
         }
       })
-    if (!res.ok){console.log("Debug: POST template path didn't work please try again.")}
-
-
+      if (!res.ok){console.log("Debug: POST template path didn't work please try again.")}
     }
   }, [reactFlowInstance, nodes]);
 
 
 
   const onRestore = useCallback((flow) => {
-    const restoreFlow = async () => {
-      // const flow = JSON.parse(localStorage.getItem(`${level}_temporaryFlowId`)); //replace with SQL
-      // //console.log(flow)
-
+    const restoreFlow = () => {
       if (flow) {
         const { x = 0, y = 0, zoom = 1 } = flow.viewport;
-
         setNodes(flow.nodes || []);
         setEdges(flow.edges || []);
         setViewport({ x, y, zoom });
@@ -242,14 +200,7 @@ const FlowChartEditor = ({level, editorLocked, selectedPrimNode, setSelectedPrim
     restoreFlow();
   }, [setNodes, setViewport]);
 
-
-
-
-
-
-  console.log("iteration: ", rendercount.current)
-  //nodes.map((node) => console.log(`${node.id} ${node.data.selected}`))
-
+  console.log(level, editableFlowCanvas, nodes)
   return (
       <div className={'w-full h-full'} ref={reactFlowWrapper}> 
         <ReactFlow
@@ -263,20 +214,20 @@ const FlowChartEditor = ({level, editorLocked, selectedPrimNode, setSelectedPrim
           onDrop={onDrop}
           minZoom={0.2}
           onDragOver={onDragOver}
-          edgesUpdatable={!editorLocked}
-          edgesFocusable={!editorLocked}
-          nodesDraggable={!editorLocked}
-          nodesConnectable={!editorLocked}
-          nodesFocusable={!editorLocked}
-          elementsSelectable={!editorLocked}
+          // edgesUpdatable={editableFlowCanvas}
+          // nodesUpdatable={editableFlowCanvas}
+          // edgesFocusable={editableFlowCanvas}
+          // nodesDraggable={editableFlowCanvas}
+          // nodesConnectable={editableFlowCanvas}
+          // elementsSelectable={!editableFlowCanvas}
           >
           <Controls />
           <PathwayCreatorControls
             level={level}
             onSaveTemplate={onSaveTemplate}
             onRestore={onRestore}
-            editableCanvas={editableCanvas}
-            handleEditableCanvasClick={handleEditableCanvasClick}
+            editableFlowCanvas={editableFlowCanvas}
+            setEditableFlowCanvas={setEditableFlowCanvas}
           /> {/*custom component in utils folder*/}
           <Background color="#aaa" gap={16} />
         </ReactFlow>
@@ -284,11 +235,10 @@ const FlowChartEditor = ({level, editorLocked, selectedPrimNode, setSelectedPrim
   );
 };
 
-export default ({level, editorLocked, selectedPrimNode, setSelectedPrimNode, setSelectedSecNode}) => (
+export default ({level, selectedPrimNode, setSelectedPrimNode, setSelectedSecNode}) => (
   <ReactFlowProvider>
     <FlowChartEditor
       level={level}
-      editorLocked={editorLocked}
       selectedPrimNode={selectedPrimNode}
       setSelectedPrimNode={setSelectedPrimNode}
       setSelectedSecNode={setSelectedSecNode}

@@ -7,8 +7,8 @@ import { BsDatabaseDown, BsDatabaseAdd } from "react-icons/bs";
 import ComboboxSelect from '@/app/components/navigation/sidebar/utils/ComboboxSelect';
 import { revalidatePath } from 'next/cache'
 
-const PathwayCreatorControls = ({level, onSaveTemplate, onRestore,  editableCanvas, handleEditableCanvasClick}) => {
-  const { mutate } = useSWRConfig() //should in theory revalidate template list but doesn't
+const PathwayCreatorControls = ({level, onSaveTemplate, onRestore,  editableFlowCanvas, setEditableFlowCanvas}) => {
+  const { mutate } = useSWRConfig() //fixme: should in theory revalidate template list but doesn't
   const load_popup_ref = useRef()
   const save_popup_ref = useRef()
   const [templateTitle, setTemplateTitle] = useState('')
@@ -46,14 +46,13 @@ const PathwayCreatorControls = ({level, onSaveTemplate, onRestore,  editableCanv
     save_popup_ref.current.close()
   }
 
-  console.log('hi I just rerendered')
   return (
     <Panel position="top-right">
       <div className='flex flex-col w-12 items-end gap-2'>
         {/* set canvas editable/non-editable button */}
         <button className={`py-2 px-2 text-xl focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700`}
-          onClick={handleEditableCanvasClick}>
-          {editableCanvas ? <MdOutlineEdit/> : <MdOutlineEditOff/>}
+          onClick={() => setEditableFlowCanvas(!editableFlowCanvas)}>
+          {editableFlowCanvas ? <MdOutlineEdit/> : <MdOutlineEditOff/>}
         </button>
 
         {/* get template paths from db */}
