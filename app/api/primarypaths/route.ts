@@ -4,29 +4,23 @@ import { NextRequest } from "next/server"
 
 //https://nextjs.org/docs/app/building-your-application/routing/route-handlers#static-route-handlers
 
-// export async function GET(req: NextRequest) {
-//   const level = req.nextUrl.searchParams.get("level")
-//   const id = req.nextUrl.searchParams.get("id")
-
-//   var templates = []
-//   if (level){templates = await prisma.templates.findMany({where: {level: level}})}
-//   if (id){templates = await prisma.templates.findMany({where: {id: id}})}
-
-//   console.log(templates)
-//   return Response.json({ templates })
-//   //return NextResponse.json({data})
-// }
+export async function GET(req: NextRequest) {
+  const parentPathId = Number(req.nextUrl.searchParams.get("parentPathId")) //path-id
+  if (parentPathId) { 
+    const path = await prisma.primaryPaths.findUnique({where: {parentPathId}})
+    return Response.json({ path })
+  }
+}
 
 export async function POST(request: Request) {
   const {parentPathId, reactFlowInstance} = await request.json()
-  console.log(parentPathId)
 
   const pathExists = await prisma.primaryPaths.findFirst({ where: { parentPathId } })
     if (pathExists === null) {
         await prisma.primaryPaths.create({ data: { parentPathId, reactFlowInstance } })
         return new NextResponse('Success!', { status: 201 })
     } else {
-        await prisma.primaryPaths.update({where: { id: pathExists.id }, data: {parentPathId, reactFlowInstance}})
+        await prisma.primaryPaths.update({where: { parentPathId }, data: {parentPathId, reactFlowInstance}})
         return new NextResponse('Success!', { status: 201 })
     }
 }

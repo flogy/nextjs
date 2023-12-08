@@ -12,7 +12,7 @@ import SubMenuTemplates from "./utils/SubMenuTemplates";
 // import shortUUID from "short-uuid";
 // const short = require('short-uuid')
 
-const SidebarPathActive = ({setPathOpen, currentPath, onSave, onDelete}) => {
+const SidebarPathActive = ({setPathOpen, currentPath, onSave, onClose, onDelete}) => {
 
   const onDragStart = (event, nodeType) => {
     event.dataTransfer.setData('application/reactflow', nodeType);
@@ -49,6 +49,7 @@ function handleClose(save){
   if(save){onSave()}
   close_popup_ref.current.close();
   setPathOpen(false)
+  onClose()
 }
 
 function handleDelete(){
@@ -90,7 +91,7 @@ function handleDelete(){
 
 
       {/* save path */}
-      <button className={`sidebar-button bg-white/10 ${!open ? "px-2.5" : "px-4"}`} onClick={() => handleSave()}>
+      <button className={`sidebar-button bg-white/10 ${!open ? "px-2.5" : "px-4"}`} onClick={() => onSave()}>
         <FaRegSave className={`sidebar-button-icon ${open && "mr-2"}`} />
         <p className={`sidebar-button-text ${!open && "hidden"}`}>Save</p>
       </button>

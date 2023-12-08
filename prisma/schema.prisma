@@ -18,8 +18,8 @@ model Paths {
 
 model PrimaryPaths {
   id                Int             @id @default(autoincrement()) //fixme: replace with uuid
-  path              Paths           @relation(fields: [parentPathId], references: [id])
-  parentPathId      Int
+  path              Paths           @relation(fields: [parentPathId], references: [id], onDelete: Cascade)
+  parentPathId      Int             @unique
   reactFlowInstance String
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
@@ -28,8 +28,8 @@ model PrimaryPaths {
 
 model SecondaryPaths {
   id                Int         @id @default(autoincrement()) //fixme: replace with uuid
-  primaryPath       PrimaryPaths @relation(fields: [parentNodeId], references: [id])
-  parentNodeId      Int
+  primaryPath       PrimaryPaths @relation(fields: [parentNodeId], references: [id], onDelete: Cascade)
+  parentNodeId      Int         @unique
   reactFlowInstance String
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt

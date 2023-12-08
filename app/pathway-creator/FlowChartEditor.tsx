@@ -28,7 +28,7 @@ const nodeTypes = {
 const short = require('short-uuid')
 const getId = () => `${short.generate()}`;
 
-const FlowChartEditor = ({level, setSelectedPrimNode, setSelectedSecNode, reactFlowInstance, setReactFlowInstance}) => {
+const FlowChartEditor = ({level, pathOpen, setSelectedPrimNode, setSelectedSecNode, reactFlowInstance, setReactFlowInstance}) => {
   // level: <'primay' or 'seconday'> identifies the flowchart editor in the GUI (primary = top)
   // selectedPrimNode/setSelectedPrimNode: node selected in primary editor
   // setSelectedSecNode: node selected in seconday editor
@@ -74,7 +74,6 @@ const FlowChartEditor = ({level, setSelectedPrimNode, setSelectedSecNode, reactF
     setNodes(newNodes)
 
   }, [selectedNodes])
-
 
   useEffect(() => {    
     //when a node is selected we set its selection property to true and the deletable property to false
@@ -216,10 +215,11 @@ const FlowChartEditor = ({level, setSelectedPrimNode, setSelectedSecNode, reactF
   );
 };
 
-export default ({level, setSelectedPrimNode, setSelectedSecNode, reactFlowInstance, setReactFlowInstance}) => (
+export default ({level, pathOpen, setSelectedPrimNode, setSelectedSecNode, reactFlowInstance, setReactFlowInstance}) => (
   <ReactFlowProvider>
     <FlowChartEditor
       level={level}
+      pathOpen={pathOpen}
       setSelectedPrimNode={setSelectedPrimNode}
       setSelectedSecNode={setSelectedSecNode}
       reactFlowInstance={reactFlowInstance}

@@ -15,23 +15,6 @@ const SidebarPathInactive = ({setPathOpen, setCurrentPath}) => {
   const [createMenu, setCreateMenu] = useState(false)
   //const [selectedPath, setSelectedPath] = useState(null)
 
-  
-  // const handleNewPathSubmit = (e) => {
-  //   e.preventDefault()
-  //   const pathName = e.target.newPathName.value;
-  //   const parentId = e.target.parentId.value;
-
-  //   const uuid = short.generate()
-    
-  //   const newPath = {uuid: uuid, name: pathName, parentId: parentId}
-  //   setCurrentPath(newPath)
-
-  //   const updatedPaths = [ ...pathList, newPath]
-  //   setPathList(updatedPaths)
-
-  //   e.target.reset()
-  //   setCreateOpen(false)
-  // }
 
   return (
     <div className={`bg-dark-purple p-5 pt-8 ${open ? "w-72" : "w-20"} duration-300 relative`}>

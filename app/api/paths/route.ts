@@ -11,33 +11,18 @@ export async function GET() {
 
 export async function POST(request: Request, res: Response) {
   const data = await request.json()
+  const paths = await prisma.paths.create(
+    {data: {
+      leistungsgruppe: data.perfGroup,
+      name: data.name
+    }})
 
-  if (data.operation === 'delete'){
-    const paths = await prisma.paths.delete({where: {id: data.id}})
-    return Response.json({ paths })
-  }
-
-  if (data.operation === 'create'){
-    const paths = await prisma.paths.create(
-      {data: {
-        leistungsgruppe: data.perfGroup,
-        name: data.name
-      }})
     return NextResponse.json({ paths })
   }
   
+export async function DELETE(request: Request, res: Response){
+  //first delete all children in any of the other tables
+  const paths = await prisma.paths.delete({where: {id: data.id}})
+  return Response.json({ paths })
 }
-
-
-// export const queryPaths = async (searchTerm: String) => {
-//   const query = await prisma.path.findMany({
-//       where: {
-//         OR: [
-//           {leistungsgruppe: {contains: searchTerm},},
-//           {name: {contains: searchTerm}}
-//         ]
-//       }
-//   })
-//   return query 
-// }
 
