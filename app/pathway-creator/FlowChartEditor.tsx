@@ -1,11 +1,9 @@
 "use client"
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import useSWR from 'swr';
 import ReactFlow, {
   ReactFlowProvider,
   addEdge,
   useNodesState,
-  applyNodeChanges,
   useEdgesState,
   useReactFlow,
   useOnSelectionChange,
@@ -14,9 +12,8 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import {StartNode, RoutineNode, OperationNode, SubroutineNode, ConditionNode, AdminNode, EndNode} from './CustomNodes'
-import { overviewNodes, overviewEdges} from "./TemplateFlows"
 import PathwayCreatorControls from './utils/PathwayCreatorControls';
-import { parse } from 'path';
+
 
 const nodeTypes = {
   start: StartNode,
@@ -31,14 +28,13 @@ const nodeTypes = {
 const short = require('short-uuid')
 const getId = () => `${short.generate()}`;
 
-const FlowChartEditor = ({level, selectedPrimNode, setSelectedPrimNode, setSelectedSecNode}) => {
+const FlowChartEditor = ({level, setSelectedPrimNode, setSelectedSecNode, reactFlowInstance, setReactFlowInstance}) => {
   // level: <'primay' or 'seconday'> identifies the flowchart editor in the GUI (primary = top)
   // selectedPrimNode/setSelectedPrimNode: node selected in primary editor
   // setSelectedSecNode: node selected in seconday editor
   const reactFlowWrapper = useRef(null);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [reactFlowInstance, setReactFlowInstance] = useState(null);
   const [selectedNodes, setSelectedNodes] = useState([]);
   const { setViewport } = useReactFlow();
   const [editableFlowCanvas, setEditableFlowCanvas] = useState(true)
@@ -168,21 +164,11 @@ const FlowChartEditor = ({level, selectedPrimNode, setSelectedPrimNode, setSelec
   );
 
   //continue here: find a way to only use one function for saving templates and paths (primary/secondary)
-  const onSaveTemplate = useCallback(async (level, name) => {
+  const onSave = useCallback(() => {
     if (reactFlowInstance) {
       const flow = reactFlowInstance.toObject();
       const flow_str = JSON.stringify(flow)
-      const submitData = {name, level, flow_str}
-
-      const res = await fetch('http://localhost:3000/api/templates',
-      {
-        method: 'POST',
-        body: JSON.stringify(submitData),
-        headers: {
-          'content-type': 'application/json'
-        }
-      })
-      if (!res.ok){console.log("Debug: POST template path didn't work please try again.")}
+      return flow_str
     }
   }, [reactFlowInstance, nodes]);
 
@@ -199,6 +185,7 @@ const FlowChartEditor = ({level, selectedPrimNode, setSelectedPrimNode, setSelec
 
     restoreFlow();
   }, [setNodes, setViewport]);
+
 
   console.log(level, editableFlowCanvas, nodes)
   return (
@@ -218,7 +205,7 @@ const FlowChartEditor = ({level, selectedPrimNode, setSelectedPrimNode, setSelec
           <Controls />
           <PathwayCreatorControls
             level={level}
-            onSaveTemplate={onSaveTemplate}
+            onSave={onSave}
             onRestore={onRestore}
             editableFlowCanvas={editableFlowCanvas}
             setEditableFlowCanvas={setEditableFlowCanvas}
@@ -229,13 +216,14 @@ const FlowChartEditor = ({level, selectedPrimNode, setSelectedPrimNode, setSelec
   );
 };
 
-export default ({level, selectedPrimNode, setSelectedPrimNode, setSelectedSecNode}) => (
+export default ({level, setSelectedPrimNode, setSelectedSecNode, reactFlowInstance, setReactFlowInstance}) => (
   <ReactFlowProvider>
     <FlowChartEditor
       level={level}
-      selectedPrimNode={selectedPrimNode}
       setSelectedPrimNode={setSelectedPrimNode}
       setSelectedSecNode={setSelectedSecNode}
+      reactFlowInstance={reactFlowInstance}
+      setReactFlowInstance={setReactFlowInstance}
     />
   </ReactFlowProvider>
 );

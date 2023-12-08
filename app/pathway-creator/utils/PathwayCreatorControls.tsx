@@ -3,11 +3,10 @@ import useSWR, { useSWRConfig } from 'swr'
 import { Panel } from 'reactflow';
 import Popup from 'reactjs-popup';
 import { MdOutlineEdit, MdOutlineEditOff } from "react-icons/md";
-import { BsDatabaseDown, BsDatabaseAdd } from "react-icons/bs";
+import { BiImport, BiExport } from "react-icons/bi";
 import ComboboxSelect from '@/app/components/navigation/sidebar/utils/ComboboxSelect';
-import { revalidatePath } from 'next/cache'
 
-const PathwayCreatorControls = ({level, onSaveTemplate, onRestore,  editableFlowCanvas, setEditableFlowCanvas}) => {
+const PathwayCreatorControls = ({level, onSave, onRestore, editableFlowCanvas, setEditableFlowCanvas}) => {
   const { mutate } = useSWRConfig() //fixme: should in theory revalidate template list but doesn't
   const load_popup_ref = useRef()
   const save_popup_ref = useRef()
@@ -20,7 +19,7 @@ const PathwayCreatorControls = ({level, onSaveTemplate, onRestore,  editableFlow
   const { data, isLoading, error } = useSWR(`/api/templates?level=${level}`, fetcher)
 
   useEffect(() => {
-    if(data){setAllTemplatePaths(data.templates)}
+    if(data) {setAllTemplatePaths(data.templates)}
   },[data])
   
   //for dropdown menu (load template)
@@ -31,7 +30,6 @@ const PathwayCreatorControls = ({level, onSaveTemplate, onRestore,  editableFlow
   //set reactFlowInstance according to DB version
   function handleLoadTemplate(){
     const path = allTemplatePaths.filter(path => (path.id === templateToLoad.key))
-    console.log('to load: ', path)
     onRestore(JSON.parse(path[0].reactFlowInstance))
     setTemplateToLoad({})
     load_popup_ref.current.close()
@@ -40,7 +38,24 @@ const PathwayCreatorControls = ({level, onSaveTemplate, onRestore,  editableFlow
   //save reactFlowInstance to DB - continue here...
   async function handleSaveTemplate(e){
     e.preventDefault()
-    onSaveTemplate(level, templateTitle)
+    const flow_str = onSave()
+
+    //save flow to db
+    if (flow_str){
+      var url = 'http://localhost:3000/api/templates'
+      var submitData = {name:templateTitle, level, flow_str}
+
+      const res = await fetch(url,
+      {
+        method: 'POST',
+        body: JSON.stringify(submitData),
+        headers: {
+          'content-type': 'application/json'
+        }
+      })
+      if (!res.ok){console.log("Debug: saving path didn't work - please try again.")}
+    }
+
     setTemplateTitle('')
     mutate('/api/templates')
     save_popup_ref.current.close()
@@ -59,7 +74,7 @@ const PathwayCreatorControls = ({level, onSaveTemplate, onRestore,  editableFlow
         <Popup 
           trigger={
             <button className={`py-2 px-2 text-xl focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700`}>
-              <BsDatabaseDown />
+              <BiImport />
             </button>
           } 
           position={'left center'}
@@ -84,7 +99,7 @@ const PathwayCreatorControls = ({level, onSaveTemplate, onRestore,  editableFlow
         <Popup 
           trigger={
             <button className={`py-2 px-2 text-xl focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700`}>
-              <BsDatabaseAdd/>
+              <BiExport/>
             </button>
           } 
           position={'left center'}

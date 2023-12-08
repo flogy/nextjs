@@ -6,7 +6,7 @@ const SubMenuCreate = ({setCurrentPath, setPathOpen}) => {
 
  const handleSubmit = async (e) => {
     e.preventDefault()
-    const submitData = {perfGroup, name}
+    const submitData = {operation: 'create', perfGroup, name}
 
     const res = await fetch('http://localhost:3000/api/paths',
       {
@@ -23,7 +23,8 @@ const SubMenuCreate = ({setCurrentPath, setPathOpen}) => {
       setPerfGroup('')
       setName('')
     }
-    setCurrentPath('')
+    const { paths } = await res.json()
+    setCurrentPath({id: paths.id, name: paths.name})
     setPathOpen(true)
   }
 

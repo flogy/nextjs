@@ -13,23 +13,23 @@ model Paths {
   name            String
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
-  PrimaryPath     PrimaryPath[]
+  PrimaryPath     PrimaryPaths[]
 }
 
-model PrimaryPath {
+model PrimaryPaths {
   id                Int             @id @default(autoincrement()) //fixme: replace with uuid
-  path              Paths           @relation(fields: [parentPath], references: [id])
-  parentPath        Int
+  path              Paths           @relation(fields: [parentPathId], references: [id])
+  parentPathId      Int
   reactFlowInstance String
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
-  SecondaryPath     SecondaryPath[]
+  SecondaryPath     SecondaryPaths[]
 }
 
-model SecondaryPath {
+model SecondaryPaths {
   id                Int         @id @default(autoincrement()) //fixme: replace with uuid
-  primaryPath       PrimaryPath @relation(fields: [parentNode], references: [id])
-  parentNode        Int
+  primaryPath       PrimaryPaths @relation(fields: [parentNodeId], references: [id])
+  parentNodeId      Int
   reactFlowInstance String
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt

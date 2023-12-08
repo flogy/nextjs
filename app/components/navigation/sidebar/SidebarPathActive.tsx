@@ -12,7 +12,7 @@ import SubMenuTemplates from "./utils/SubMenuTemplates";
 // import shortUUID from "short-uuid";
 // const short = require('short-uuid')
 
-const SidebarPathActive = ({setPathOpen, setCurrentPath}) => {
+const SidebarPathActive = ({setPathOpen, currentPath, onSave, onDelete}) => {
 
   const onDragStart = (event, nodeType) => {
     event.dataTransfer.setData('application/reactflow', nodeType);
@@ -45,15 +45,14 @@ const SidebarPathActive = ({setPathOpen, setCurrentPath}) => {
   //   setCreateOpen(false)
   // }
 
-function handleClose(){
-  console.log("i close")
-  //save changes
+function handleClose(save){
+  if(save){onSave()}
   close_popup_ref.current.close();
   setPathOpen(false)
 }
 
 function handleDelete(){
-  console.log("i delte")
+  onDelete()
   delete_popup_ref.current.close();
   setPathOpen(false)
 }
@@ -71,7 +70,7 @@ function handleDelete(){
 
       <aside className={`mt-6 text-white text-md mb-6 ${!open && "hidden"}`}>
         <p className="text-xs text-gray-400">Now editing:</p>
-        <p>PathName</p>
+        <p>{currentPath.name}</p>
       </aside>
 
       {/* ${importMenu ? "bg-white/30" : "bg-white/10"} */}
@@ -91,7 +90,7 @@ function handleDelete(){
 
 
       {/* save path */}
-      <button className={`sidebar-button bg-white/10 ${!open ? "px-2.5" : "px-4"}`} onClick={() => console.log('save path')}>
+      <button className={`sidebar-button bg-white/10 ${!open ? "px-2.5" : "px-4"}`} onClick={() => handleSave()}>
         <FaRegSave className={`sidebar-button-icon ${open && "mr-2"}`} />
         <p className={`sidebar-button-text ${!open && "hidden"}`}>Save</p>
       </button>
@@ -111,8 +110,8 @@ function handleDelete(){
           <div className="w-60 h-min-20 bg-white rounded-md flex flex-col p-1">
             <p className="p-1">Do you want to save the changes?</p>
             <span className="flex gap-2">
-              <button onClick={handleClose} className="flex-1 bg-gray-400 rounded-md hover:bg-gray-300 mt-2">Yes</button>
-              <button onClick={() => close_popup_ref.current.close()} className="flex-1 bg-gray-400 rounded-md hover:bg-red-500 mt-2">No</button>
+              <button onClick={() => handleClose(true)} className="flex-1 bg-gray-400 rounded-md hover:bg-gray-300 mt-2">Yes</button> {/* fixme: onclick needs vector function? why? */}
+              <button onClick={() => handleClose(false)} className="flex-1 bg-gray-400 rounded-md hover:bg-red-500 mt-2">No</button>
             </span>
           </div>
       </Popup>
@@ -140,7 +139,7 @@ function handleDelete(){
           </div>
       </Popup>
 
-      {/* create a copy */}
+      {/* save path */}
       <button className={`sidebar-button bg-white/10 ${!open ? "px-2.5" : "px-4"}`} onClick={() => console.log('save as path')}>
         <FaRegSave className={`sidebar-button-icon ${open && "mr-2"}`} />
         <p className={`sidebar-button-text ${!open && "hidden"}`}>Create a copy..</p>

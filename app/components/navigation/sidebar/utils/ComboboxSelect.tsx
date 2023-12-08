@@ -5,7 +5,7 @@ const ComboboxSelect = ({items, label, setSelectedItem}) => {
   return (
     <>
       <Downshift
-        onChange={(selection) => setSelectedItem(selection)}
+        onChange={(selection) => setSelectedItem({id:selection.key, name:selection.value})}
         itemToString={(item) => (item ? item.value : '')}
       >
       {({

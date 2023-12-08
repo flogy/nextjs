@@ -12,13 +12,20 @@ export async function GET() {
 export async function POST(request: Request, res: Response) {
   const data = await request.json()
 
-  const paths = await prisma.paths.create(
-    {data: {
-      leistungsgruppe: data.perfGroup,
-      name: data.name
-    }})
+  if (data.operation === 'delete'){
+    const paths = await prisma.paths.delete({where: {id: data.id}})
+    return Response.json({ paths })
+  }
 
-  return NextResponse.json(data)
+  if (data.operation === 'create'){
+    const paths = await prisma.paths.create(
+      {data: {
+        leistungsgruppe: data.perfGroup,
+        name: data.name
+      }})
+    return NextResponse.json({ paths })
+  }
+  
 }
 
 

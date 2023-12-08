@@ -4,26 +4,25 @@ import { NextRequest } from "next/server"
 
 //https://nextjs.org/docs/app/building-your-application/routing/route-handlers#static-route-handlers
 
-export async function GET(req: NextRequest) {
-  const level = req.nextUrl.searchParams.get("level")
-  const id = req.nextUrl.searchParams.get("id")
+// export async function GET(req: NextRequest) {
+//   const level = req.nextUrl.searchParams.get("level")
+//   const id = req.nextUrl.searchParams.get("id")
 
-  var templates = []
-  if (level){templates = await prisma.templates.findMany({where: {level: level}})}
-  if (id){templates = await prisma.templates.findMany({where: {id: id}})}
+//   var templates = []
+//   if (level){templates = await prisma.templates.findMany({where: {level: level}})}
+//   if (id){templates = await prisma.templates.findMany({where: {id: id}})}
 
-  console.log(templates)
-  return Response.json({ templates })
-  //return NextResponse.json({data})
-}
+//   console.log(templates)
+//   return Response.json({ templates })
+//   //return NextResponse.json({data})
+// }
 
 export async function POST(request: Request) {
   const data = await request.json()
 
-  const templates = await prisma.templates.create(
+  const secondarypaths = await prisma.secondaryPaths.create(
     {data: {
-      name: data.name,
-      level: data.level,
+      parentNodeId: data.parentNodeId,
       reactFlowInstance: data.flow_str,
     }})
 
