@@ -22,10 +22,10 @@ const SubMenuCreate = ({setCurrentPath, setPathOpen}) => {
     }else{
       setPerfGroup('')
       setName('')
+      const { paths } = await res.json()
+      setCurrentPath({id: paths.id, name: paths.name})
+      setPathOpen(true)
     }
-    const { paths } = await res.json()
-    setCurrentPath({id: paths.id, name: paths.name})
-    setPathOpen(true)
   }
 
 

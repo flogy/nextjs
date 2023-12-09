@@ -8,31 +8,57 @@ const page = () => {
   //sidebar UI-hooks
   const [pathOpen, setPathOpen] = useState(false) //determines the switch between SidebarPathInactive and SidebarPathActive and what to show
   
-  //holds all data for the flowcharts
-  const [reactFlowInstancePrimary, setReactFlowInstancePrimary] = useState(null);
-  const [reactFlowInstanceSecondary, setReactFlowInstanceSecondary] = useState(null);
+  //holds all data for the flowchart editors
   const [currentPath, setCurrentPath] = useState(null) //current parent Path (see Paths DB-Schema: Paths)
-  // const [primaryPath, setPrimaryPath] = useState(null) //the one primary path (see DB-Schema: PrimaryPaths)
-  // const [secondaryPaths, setSecondaryPaths] = useState([]) //all children(secondary) paths of primary paths (see DB-Schema: SecondaryPaths)
-
-  //editor hooks
+  const [reactFlowInstancePrimaryInit, setReactFlowInstancePrimaryInit] = useState(null); //to initialize primary editor
+  const [reactFlowInstanceSecondaryInit, setReactFlowInstanceSecondaryInit] = useState(null); //to initialize secondary editor
+  
+  const [reactFlowInstancePrimary, setReactFlowInstancePrimary] = useState(null); //working flowstate
+  const [reactFlowInstanceSecondary, setReactFlowInstanceSecondary] = useState(null); //working flowstate
+  
   const [selectedPrimNode, setSelectedPrimNode] = useState(null)
+  const [allSecNodes, setAllSecNodes] = useState([])
   const [selectedSecNode, setSelectedSecNode] = useState(null)
 
+
   const fetchData = useCallback(async (id) => {
-      const response = await fetch(`http://localhost:3000/api/primarypaths?parentPathId=${id}`)
-      const { path } = await response.json()
+    //get the main path
+    const response = await fetch(`http://localhost:3000/api/primarypaths?parentPathId=${id}`)
+    const { path } = await response.json()
+    if (path){ //for new paths this does not yet exist
       const flow = JSON.parse(path.reactFlowInstance)
       console.log('flow to to be set ', flow)
-      setReactFlowInstancePrimary(flow) //continue: and now re-render the flowchart
-    },[])
+      setReactFlowInstancePrimaryInit(flow) //continue: and now re-render the flowchart
+    }
+
+    //get all children paths associated to parent path
+  },[])
 
 
+  //get data from DB once path was selected
   useEffect(() => {
     if (currentPath){
       fetchData(currentPath.id)
     }
   }, [pathOpen, fetchData])
+
+
+  //whenever a parent node is selected we add an entry to allSecNodes that holds a list of dicts where
+  //id = selectedPrimNode.id
+  //value = reactFlowInstanceSecondary (if != null)
+  useEffect(() => {
+    console.log('It is me: sideeffect')
+    if (selectedPrimNode){
+      const flow = reactFlowInstanceSecondary.toObject()
+      console.log(selectedPrimNode, flow)
+      const newSecNodes = allSecNodes.concat({id: selectedPrimNode.id, reactFlowInstance:flow})
+      setAllSecNodes(newSecNodes)
+    } else {
+      console.log('setting secondary flow instance to null:')
+      setReactFlowInstanceSecondaryInit(null)
+    }
+
+  }, [selectedPrimNode, reactFlowInstanceSecondary])
 
 
   const onSave = async() => {
@@ -57,6 +83,9 @@ const page = () => {
     }
 
     //saving all secondary paths associated to primary path
+
+
+
   }
 
   const onClose = () =>{
@@ -68,8 +97,8 @@ const page = () => {
   const onDelete = async() => {
     //delete path from Paths
     if (currentPath){
-      url = 'http://localhost:3000/api/paths'
-      submitData = {id: currentPath.id}
+      const url = 'http://localhost:3000/api/paths'
+      const submitData = {id: currentPath.id}
       const res = await fetch(url,
       {
         method: 'DELETE',
@@ -79,12 +108,15 @@ const page = () => {
         }
       })
       if (!res.ok){console.log("Debug: saving main path didn't work - please try again.")}
-    }  
+    }
+    setCurrentPath(null) 
   }
 
 
 
-
+  // console.log('selected primary node: ', selectedPrimNode)
+  // console.log('React flow instance secondary: ', reactFlowInstanceSecondary)
+  // console.log('All secondary nodes: ', allSecNodes)
   return (
     <div className='h-full flex flex-grow'>
       
@@ -114,6 +146,7 @@ const page = () => {
               pathOpen={pathOpen} //to restore reactflow upon loading a new path
               setSelectedPrimNode={setSelectedPrimNode}
               setSelectedSecNode={setSelectedSecNode}
+              reactFlowInstanceInit={reactFlowInstancePrimaryInit}
               reactFlowInstance={reactFlowInstancePrimary}
               setReactFlowInstance={setReactFlowInstancePrimary}
             />
@@ -127,6 +160,7 @@ const page = () => {
               pathOpen={pathOpen}
               setSelectedPrimNode={setSelectedPrimNode}
               setSelectedSecNode={setSelectedSecNode} //neded
+              reactFlowInstanceInit={reactFlowInstanceSecondaryInit}
               reactFlowInstance={reactFlowInstanceSecondary}
               setReactFlowInstance={setReactFlowInstanceSecondary}
             />

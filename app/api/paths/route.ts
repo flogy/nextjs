@@ -21,8 +21,9 @@ export async function POST(request: Request, res: Response) {
   }
   
 export async function DELETE(request: Request, res: Response){
-  //first delete all children in any of the other tables
-  const paths = await prisma.paths.delete({where: {id: data.id}})
+  //all children are deleted also (cascade in DB definition)
+  const { id } = await request.json()
+  const paths = await prisma.paths.delete({where: {id}})
   return Response.json({ paths })
 }
 

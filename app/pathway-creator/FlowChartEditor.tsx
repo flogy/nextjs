@@ -28,7 +28,7 @@ const nodeTypes = {
 const short = require('short-uuid')
 const getId = () => `${short.generate()}`;
 
-const FlowChartEditor = ({level, pathOpen, setSelectedPrimNode, setSelectedSecNode, reactFlowInstance, setReactFlowInstance}) => {
+const FlowChartEditor = ({level, pathOpen, setSelectedPrimNode, setSelectedSecNode, reactFlowInstanceInit, reactFlowInstance, setReactFlowInstance}) => {
   // level: <'primay' or 'seconday'> identifies the flowchart editor in the GUI (primary = top)
   // selectedPrimNode/setSelectedPrimNode: node selected in primary editor
   // setSelectedSecNode: node selected in seconday editor
@@ -41,12 +41,21 @@ const FlowChartEditor = ({level, pathOpen, setSelectedPrimNode, setSelectedSecNo
 
 
   //keep track of renders
-  const rendercount = useRef(0)
-  useEffect(() => {
-    rendercount.current = rendercount.current + 1;
-  });
-  console.log("iteration: ", rendercount.current)
+  // const rendercount = useRef(0)
+  // useEffect(() => {
+  //   rendercount.current = rendercount.current + 1;
+  // });
+  // console.log("iteration: ", rendercount.current)
   
+  //when a new flowInstance is set from the parent then load it
+  useEffect(() => {
+    if (reactFlowInstanceInit){
+      onRestore(reactFlowInstanceInit)
+    } else {
+      console.log('make lower canvas not editable')
+    }
+  }, [reactFlowInstanceInit])
+
 
   //modify all edges to be of smoothstep type
   const edgesWithUpdatedType = edges.map((edge) => {
@@ -72,8 +81,8 @@ const FlowChartEditor = ({level, pathOpen, setSelectedPrimNode, setSelectedSecNo
     })
 
     setNodes(newNodes)
-
   }, [selectedNodes])
+
 
   useEffect(() => {    
     //when a node is selected we set its selection property to true and the deletable property to false
@@ -173,7 +182,7 @@ const FlowChartEditor = ({level, pathOpen, setSelectedPrimNode, setSelectedSecNo
 
 
   const onRestore = useCallback((flow) => {
-    const restoreFlow = () => {
+    const restoreFlow = (flow) => {
       if (flow) {
         const { x = 0, y = 0, zoom = 1 } = flow.viewport;
         setNodes(flow.nodes || []);
@@ -182,11 +191,11 @@ const FlowChartEditor = ({level, pathOpen, setSelectedPrimNode, setSelectedSecNo
       }
     };
 
-    restoreFlow();
+    restoreFlow(flow);
   }, [setNodes, setViewport]);
 
 
-  console.log(level, editableFlowCanvas, nodes)
+
   return (
       <div className={'w-full h-full'} ref={reactFlowWrapper}> 
         <ReactFlow
@@ -215,13 +224,14 @@ const FlowChartEditor = ({level, pathOpen, setSelectedPrimNode, setSelectedSecNo
   );
 };
 
-export default ({level, pathOpen, setSelectedPrimNode, setSelectedSecNode, reactFlowInstance, setReactFlowInstance}) => (
+export default ({level, pathOpen, setSelectedPrimNode, setSelectedSecNode, reactFlowInstanceInit, reactFlowInstance, setReactFlowInstance}) => (
   <ReactFlowProvider>
     <FlowChartEditor
       level={level}
       pathOpen={pathOpen}
       setSelectedPrimNode={setSelectedPrimNode}
       setSelectedSecNode={setSelectedSecNode}
+      reactFlowInstanceInit={reactFlowInstanceInit}
       reactFlowInstance={reactFlowInstance}
       setReactFlowInstance={setReactFlowInstance}
     />
