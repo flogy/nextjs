@@ -15,8 +15,10 @@ const page = () => {
   
   const [reactFlowInstancePrimary, setReactFlowInstancePrimary] = useState(null); //working flowstate
   const [reactFlowInstanceSecondary, setReactFlowInstanceSecondary] = useState(null); //working flowstate
+
   
   const [selectedPrimNode, setSelectedPrimNode] = useState(null)
+  const [previsouslySelectedPrimNode, setPrevisouslySelectedPrimNode] = useState(null)
   const [allSecNodes, setAllSecNodes] = useState([])
   const [selectedSecNode, setSelectedSecNode] = useState(null)
 
@@ -43,22 +45,32 @@ const page = () => {
   }, [pathOpen, fetchData])
 
 
-  //whenever a parent node is selected we add an entry to allSecNodes that holds a list of dicts where
-  //id = selectedPrimNode.id
-  //value = reactFlowInstanceSecondary (if != null)
   useEffect(() => {
-    console.log('It is me: sideeffect')
-    if (selectedPrimNode){
+    //wenn die prev-node eine andere ist als die jetzige dann speicher die prev node ab
+    if (previsouslySelectedPrimNode && selectedPrimNode !== previsouslySelectedPrimNode){
+      //in this case we save our flowchart instance (if exists)
+      if (!reactFlowInstanceSecondary){return}
       const flow = reactFlowInstanceSecondary.toObject()
-      console.log(selectedPrimNode, flow)
-      const newSecNodes = allSecNodes.concat({id: selectedPrimNode.id, reactFlowInstance:flow})
+      console.log('saving a flowobject here!')
+      const newSecNodes = allSecNodes.concat({id: previsouslySelectedPrimNode.id, reactFlowInstance:flow})
       setAllSecNodes(newSecNodes)
-    } else {
-      console.log('setting secondary flow instance to null:')
-      setReactFlowInstanceSecondaryInit(null)
-    }
 
-  }, [selectedPrimNode, reactFlowInstanceSecondary])
+      //and present the user with either empty canvas or a previous sub-flowchart
+      // (selectedPrimNode is null if none is selected)
+      if (selectedPrimNode){// && //is in allSecNodes ){
+        //load old flowchart
+        console.log('hi')
+      } else {
+        //present the user with a new and empty flowchart canvas
+        console.log('bye')
+      }
+
+      }
+    setPrevisouslySelectedPrimNode(selectedPrimNode)
+  }, [selectedPrimNode])
+
+
+
 
 
   const onSave = async() => {
@@ -116,7 +128,7 @@ const page = () => {
 
   // console.log('selected primary node: ', selectedPrimNode)
   // console.log('React flow instance secondary: ', reactFlowInstanceSecondary)
-  // console.log('All secondary nodes: ', allSecNodes)
+  console.log('All secondary nodes: ', allSecNodes)
   return (
     <div className='h-full flex flex-grow'>
       
@@ -153,8 +165,8 @@ const page = () => {
           </div>
 
           {/* secondary flow chart editor */}
-          <div className='flex basis-4/6 flex-col border-4 border-slate-300'>
-            <h2 className='text-3xl text-center bg-slate-300'>{selectedPrimNode ? 'Detail View: ' + selectedPrimNode.data.label : 'Subpath'}</h2>
+          <div className={`flex flex-col border-4 border-slate-300 ${!selectedPrimNode ? 'hidden basis-0' : 'basis-4/6'}`}>
+            <h2 className='text-3xl text-center bg-slate-300'>{selectedPrimNode ? 'Detail View: ' + selectedPrimNode.data.label : 'Select a node to proceed'}</h2>
             <FlowChartEditor 
               level={'secondary'} //neded
               pathOpen={pathOpen}
@@ -165,11 +177,16 @@ const page = () => {
               setReactFlowInstance={setReactFlowInstanceSecondary}
             />
           </div>
+
+          <div className={`flex flex-col border-4 border-slate-300 text-xl ${selectedPrimNode ? 'hidden basis-0' : 'basis-4/6'}`}>
+            <h2 className='text-3xl text-center bg-slate-300'>Secondary Path</h2>
+            <p className='h-full flex flex-col justify-center items-center'>Select a primary node to proceeed..</p>
+          </div>
         </div>
       :
-      <div className='flex flex-col flex-grow justify-center items-center text-xl'>
-        <p>Open, import or create path to proceed..</p>
-      </div>
+        <div className='flex flex-col flex-grow justify-center items-center text-xl'>
+          <p>Open, import or create path to proceed..</p>
+        </div>
       }     
 
     </div>
