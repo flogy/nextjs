@@ -19,7 +19,7 @@ const page = () => {
   
   const [selectedPrimNode, setSelectedPrimNode] = useState(null)
   const [previsouslySelectedPrimNode, setPrevisouslySelectedPrimNode] = useState(null)
-  const [allSecNodes, setAllSecNodes] = useState([])
+  const [allSecPaths, setAllSecPaths] = useState([])
   const [selectedSecNode, setSelectedSecNode] = useState(null)
 
 
@@ -46,26 +46,40 @@ const page = () => {
 
 
   useEffect(() => {
-    //wenn die prev-node eine andere ist als die jetzige dann speicher die prev node ab
-    if (previsouslySelectedPrimNode && selectedPrimNode !== previsouslySelectedPrimNode){
-      //in this case we save our flowchart instance (if exists)
-      if (!reactFlowInstanceSecondary){return}
-      const flow = reactFlowInstanceSecondary.toObject()
-      console.log('saving a flowobject here!')
-      const newSecNodes = allSecNodes.concat({id: previsouslySelectedPrimNode.id, reactFlowInstance:flow})
-      setAllSecNodes(newSecNodes)
+    if (previsouslySelectedPrimNode && selectedPrimNode !== previsouslySelectedPrimNode){ //also fires if no new node is selected
+      //we save our flowchart instance (if exists)
+      if (reactFlowInstanceSecondary){
+        const flow = reactFlowInstanceSecondary.toObject()
+        console.log('saving a flowobject here!')
+
+        //check if an entry exists?
+        const exists = allSecPaths.filter((path) => path.id === previsouslySelectedPrimNode.id)
+        if (exists.length !== 0){ //yes: replace
+          const newSecPaths = allSecPaths.map((path) => (path.id !== previsouslySelectedPrimNode.id) ? path : {id: previsouslySelectedPrimNode.id, reactFlowInstance:flow})
+          setAllSecPaths(newSecPaths)
+        } else { //no: concat
+          const newSecPaths = allSecPaths.concat({id: previsouslySelectedPrimNode.id, reactFlowInstance:flow})
+          setAllSecPaths(newSecPaths)
+        }
+      }
 
       //and present the user with either empty canvas or a previous sub-flowchart
-      // (selectedPrimNode is null if none is selected)
-      if (selectedPrimNode){// && //is in allSecNodes ){
-        //load old flowchart
-        console.log('hi')
-      } else {
-        //present the user with a new and empty flowchart canvas
-        console.log('bye')
-      }
+      if (selectedPrimNode){//setz jetztiges secondary flowchart lt datenbank
+        console.log("++++++++++++++++++++++++++++++++++++++++")
+        const [path] = allSecPaths.filter((path) => path.id === selectedPrimNode.id)
+        if (path){
+          //load old flowchart from allSecPaths
+          console.log('setting previous secondary path: ', path)
+          setReactFlowInstanceSecondaryInit(path.reactFlowInstance)
 
-      }
+        } else {
+          //just show new empty chart
+          console.log('No previous path - showing empty canvas')
+          setReactFlowInstanceSecondaryInit({nodes: [], edges: [], viewport: {x:0, y:0, zoom:1}})
+        }
+      } //no selectedPrimNode --> no edit possible
+
+    }
     setPrevisouslySelectedPrimNode(selectedPrimNode)
   }, [selectedPrimNode])
 
@@ -128,7 +142,7 @@ const page = () => {
 
   // console.log('selected primary node: ', selectedPrimNode)
   // console.log('React flow instance secondary: ', reactFlowInstanceSecondary)
-  console.log('All secondary nodes: ', allSecNodes)
+  console.log('All secondary nodes: ', allSecPaths)
   return (
     <div className='h-full flex flex-grow'>
       
