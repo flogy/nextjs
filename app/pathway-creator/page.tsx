@@ -29,7 +29,6 @@ const page = () => {
     const { path } = await response.json()
     if (path){ //for new paths this does not yet exist
       const flow = JSON.parse(path.reactFlowInstance)
-      console.log('flow to to be set ', flow)
       setReactFlowInstancePrimaryInit(flow) //continue: and now re-render the flowchart
     }
 
@@ -50,8 +49,6 @@ const page = () => {
       //we save our flowchart instance (if exists)
       if (reactFlowInstanceSecondary){
         const flow = reactFlowInstanceSecondary.toObject()
-        console.log('saving a flowobject here!')
-
         //check if an entry exists?
         const exists = allSecPaths.filter((path) => path.id === previsouslySelectedPrimNode.id)
         if (exists.length !== 0){ //yes: replace
@@ -65,16 +62,13 @@ const page = () => {
 
       //and present the user with either empty canvas or a previous sub-flowchart
       if (selectedPrimNode){//setz jetztiges secondary flowchart lt datenbank
-        console.log("++++++++++++++++++++++++++++++++++++++++")
         const [path] = allSecPaths.filter((path) => path.id === selectedPrimNode.id)
         if (path){
           //load old flowchart from allSecPaths
-          console.log('setting previous secondary path: ', path)
           setReactFlowInstanceSecondaryInit(path.reactFlowInstance)
 
         } else {
           //just show new empty chart
-          console.log('No previous path - showing empty canvas')
           setReactFlowInstanceSecondaryInit({nodes: [], edges: [], viewport: {x:0, y:0, zoom:1}})
         }
       } //no selectedPrimNode --> no edit possible
@@ -140,9 +134,11 @@ const page = () => {
 
 
 
-  // console.log('selected primary node: ', selectedPrimNode)
+   console.log('selected primary node: ', selectedPrimNode)
   // console.log('React flow instance secondary: ', reactFlowInstanceSecondary)
-  console.log('All secondary nodes: ', allSecPaths)
+  // console.log('All secondary nodes: ', allSecPaths)
+  
+  const selectableNode = selectedPrimNode && selectedPrimNode.type !== ('start' || 'end')
   return (
     <div className='h-full flex flex-grow'>
       
@@ -179,8 +175,8 @@ const page = () => {
           </div>
 
           {/* secondary flow chart editor */}
-          <div className={`flex flex-col border-4 border-slate-300 ${!selectedPrimNode ? 'hidden basis-0' : 'basis-4/6'}`}>
-            <h2 className='text-3xl text-center bg-slate-300'>{selectedPrimNode ? 'Detail View: ' + selectedPrimNode.data.label : 'Select a node to proceed'}</h2>
+          <div className={`flex flex-col border-4 border-slate-300 ${selectableNode ? 'basis-4/6' : 'hidden basis-0'}`}>
+            <h2 className='text-3xl text-center bg-slate-300'>{selectedPrimNode && selectableNode && 'Detail View: ' + selectedPrimNode.data.label}</h2>
             <FlowChartEditor 
               level={'secondary'} //neded
               pathOpen={pathOpen}
@@ -192,9 +188,9 @@ const page = () => {
             />
           </div>
 
-          <div className={`flex flex-col border-4 border-slate-300 text-xl ${selectedPrimNode ? 'hidden basis-0' : 'basis-4/6'}`}>
+          <div className={`flex flex-col border-4 border-slate-300 text-xl ${selectableNode ? 'hidden basis-0' : 'basis-4/6'}`}>
             <h2 className='text-3xl text-center bg-slate-300'>Secondary Path</h2>
-            <p className='h-full flex flex-col justify-center items-center'>Select a primary node to proceeed..</p>
+            <p className='h-full flex flex-col justify-center items-center'>{selectedPrimNode && !selectableNode ? 'Start and end nodes cannot be modified..' : 'Select a primary node to proceeed..'}</p>
           </div>
         </div>
       :

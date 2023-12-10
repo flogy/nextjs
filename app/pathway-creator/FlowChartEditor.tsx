@@ -49,7 +49,6 @@ const FlowChartEditor = ({level, pathOpen, setSelectedPrimNode, setSelectedSecNo
   
   //when a new flowInstance is set from the parent then load it
   useEffect(() => {
-    console.log('useeffect: reactFlowInstanceInit: ', reactFlowInstanceInit)
     if (reactFlowInstanceInit){
       onRestore(reactFlowInstanceInit)
     } 
@@ -181,7 +180,6 @@ const FlowChartEditor = ({level, pathOpen, setSelectedPrimNode, setSelectedSecNo
 
 
   const onRestore = useCallback((flow) => {
-    console.log('onRestore call with flow = ', flow)
     const restoreFlow = (flow) => {
       if (flow) {
         const { x = 0, y = 0, zoom = 1 } = flow.viewport;
