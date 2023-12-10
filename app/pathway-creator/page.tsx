@@ -23,7 +23,7 @@ const page = () => {
   const [selectedSecNode, setSelectedSecNode] = useState(null)
 
 
-  const fetchData = useCallback(async (id) => {
+  const fetchInitData = useCallback(async (id) => {
     //get the main path
     const response = await fetch(`http://localhost:3000/api/primarypaths?parentPathId=${id}`)
     const { path } = await response.json()
@@ -33,40 +33,77 @@ const page = () => {
     }
 
     //get all children paths associated to parent path
-  },[])
+    },[])
+
+
+  const syncSecondaryPaths = useCallback(async () => {
+    //const flow_str = JSON.stringify(flow)
+    const submitData = allSecPaths.map(res => {
+      return {...res, reactFlowInstance: JSON.stringify(res.reactFlowInstance)}
+    })
+
+    const res = await fetch('http://localhost:3000/api/secondarypaths',
+      {
+        method: 'POST',
+        body: JSON.stringify(submitData),
+        headers: {
+          'content-type': 'application/json'
+        }
+      })
+    if (!res.ok){
+      console.log("Debug: POST didn't work please try again.")
+    } else {
+      const response = await res.json()
+      const newSecPaths = response.map(res => {
+        return {...res, reactFlowInstance: JSON.parse(res.reactFlowInstance)}
+      })
+      //setAllSecPaths(newSecPaths)
+    }
+  }, [allSecPaths])
+
+
+  useEffect(() => {
+    if (allSecPaths.length > 0){
+      syncSecondaryPaths()
+    }
+  }, [allSecPaths])
 
 
   //get data from DB once path was selected
   useEffect(() => {
     if (currentPath){
-      fetchData(currentPath.id)
+      fetchInitData(currentPath.id)
     }
-  }, [pathOpen, fetchData])
+  }, [pathOpen, fetchInitData])
 
 
+  //es gibt:
+  //parentPathId == id vom path
+  //parentNodeId == id von der parent node
   useEffect(() => {
     if (previsouslySelectedPrimNode && selectedPrimNode !== previsouslySelectedPrimNode){ //also fires if no new node is selected
       //we save our flowchart instance (if exists)
       if (reactFlowInstanceSecondary){
         const flow = reactFlowInstanceSecondary.toObject()
-        //check if an entry exists?
-        const exists = allSecPaths.filter((path) => path.id === previsouslySelectedPrimNode.id)
-        if (exists.length !== 0){ //yes: replace
-          const newSecPaths = allSecPaths.map((path) => (path.id !== previsouslySelectedPrimNode.id) ? path : {id: previsouslySelectedPrimNode.id, reactFlowInstance:flow})
-          setAllSecPaths(newSecPaths)
-        } else { //no: concat
-          const newSecPaths = allSecPaths.concat({id: previsouslySelectedPrimNode.id, reactFlowInstance:flow})
-          setAllSecPaths(newSecPaths)
+        if (flow.nodes.length !== 0){ //otherwise nothing to save..
+          //check if an entry exists?
+          const exists = allSecPaths.filter((path) => path.parentNodeId === previsouslySelectedPrimNode.id)
+          if (exists.length !== 0){ //yes: replace
+            const newSecPaths = allSecPaths.map((path) => (path.parentNodeId !== previsouslySelectedPrimNode.id) ? path : {parentPathId: currentPath.id, parentNodeId: previsouslySelectedPrimNode.id, reactFlowInstance: flow})
+            setAllSecPaths(newSecPaths)
+          } else { //no: concat
+            const newSecPaths = allSecPaths.concat({parentPathId: currentPath.id, parentNodeId: previsouslySelectedPrimNode.id, reactFlowInstance: flow})
+            setAllSecPaths(newSecPaths)
+          }
         }
       }
 
       //and present the user with either empty canvas or a previous sub-flowchart
       if (selectedPrimNode){//setz jetztiges secondary flowchart lt datenbank
-        const [path] = allSecPaths.filter((path) => path.id === selectedPrimNode.id)
+        const [path] = allSecPaths.filter((path) => path.parentNodeId === selectedPrimNode.id)
         if (path){
           //load old flowchart from allSecPaths
           setReactFlowInstanceSecondaryInit(path.reactFlowInstance)
-
         } else {
           //just show new empty chart
           setReactFlowInstanceSecondaryInit({nodes: [], edges: [], viewport: {x:0, y:0, zoom:1}})
@@ -112,6 +149,7 @@ const page = () => {
     setReactFlowInstancePrimary(null)
     setReactFlowInstanceSecondary(null)
     setCurrentPath(null)
+    setAllSecPaths([])
   }
 
   const onDelete = async() => {
@@ -134,11 +172,11 @@ const page = () => {
 
 
 
-   console.log('selected primary node: ', selectedPrimNode)
+   //console.log('selected primary node: ', selectedPrimNode)
   // console.log('React flow instance secondary: ', reactFlowInstanceSecondary)
-  // console.log('All secondary nodes: ', allSecPaths)
+  //console.log('All secondary paths: ', allSecPaths)
   
-  const selectableNode = selectedPrimNode && selectedPrimNode.type !== ('start' || 'end')
+  const selectableNode = selectedPrimNode && selectedPrimNode.type !== 'start' && selectedPrimNode.type !=='end'
   return (
     <div className='h-full flex flex-grow'>
       

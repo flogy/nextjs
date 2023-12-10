@@ -18,15 +18,31 @@ import { NextRequest } from "next/server"
 // }
 
 export async function POST(request: Request) {
-  const data = await request.json()
+  const data = await request.json() //array with few entries (== max num of parent nodes)
+  
 
-  const secondarypaths = await prisma.secondaryPaths.create(
-    {data: {
-      parentNodeId: data.parentNodeId,
-      reactFlowInstance: data.flow_str,
-    }})
+  const promises = data.map(async path => {
+    await prisma.secondaryPaths.create(
+      {data:
+        { parentPathId: 34, parentNodeId: "test", reactFlowInstance: path.reactFlowInstance }
+      }
+    )
 
-  return NextResponse.json(data)
+
+    // await prisma.secondaryPaths.upsert({
+    //   where: { parentPathId: path.parentPathId, parentNodeId: path.parentNodeId },
+    //   update: { reactFlowInstance: path.reactFlowInstance },
+    //   create: { parentPathId: path.parentPathId, parentNodeId: path.parentNodeId, reactFlowInstance: path.reactFlowInstance },
+    // })
+  })
+   
+  //const paths = await Promise.all(promises)
+  const paths = []
+
+  const resp = JSON.stringify(paths)
+
+  return NextResponse.json(paths)
+  //return NextResponse.json(data)
 }
 
 

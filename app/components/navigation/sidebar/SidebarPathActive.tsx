@@ -57,7 +57,6 @@ function handleDelete(){
   delete_popup_ref.current.close();
   setPathOpen(false)
 }
-  console.log('sidebar render')
 
   return (
     <div className={`bg-dark-purple p-5 pt-8 ${open ? "w-72" : "w-20"} duration-300 relative`}>
