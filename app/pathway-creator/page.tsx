@@ -25,15 +25,26 @@ const page = () => {
 
   const fetchInitData = useCallback(async (id) => {
     //get the main path
-    const response = await fetch(`http://localhost:3000/api/primarypaths?parentPathId=${id}`)
-    const { path } = await response.json()
+    const prim_response = await fetch(`http://localhost:3000/api/primarypaths?parentPathId=${id}`)
+    const { path } = await prim_response.json()
     if (path){ //for new paths this does not yet exist
       const flow = JSON.parse(path.reactFlowInstance)
       setReactFlowInstancePrimaryInit(flow) //continue: and now re-render the flowchart
     }
 
-    //get all children paths associated to parent path
-    },[])
+    //get all secondary paths associated to parent path
+    const sec_response = await fetch(`http://localhost:3000/api/secondarypaths?parentPathId=${id}`)
+    const paths  = await sec_response.json()
+    console.log('paths received: ', paths)
+
+    if (paths){
+      const newSecPaths = paths.map(res => {
+        return {...res, reactFlowInstance: JSON.parse(res.reactFlowInstance)}
+      })
+      console.log('paths after map: ', newSecPaths)
+      setAllSecPaths(newSecPaths)
+    }
+  },[])
 
 
   const syncSecondaryPaths = useCallback(async () => {
@@ -41,6 +52,8 @@ const page = () => {
     const submitData = allSecPaths.map(res => {
       return {...res, reactFlowInstance: JSON.stringify(res.reactFlowInstance)}
     })
+
+    //console.log("what is sent to the api: ", JSON.stringify(submitData))
 
     const res = await fetch('http://localhost:3000/api/secondarypaths',
       {

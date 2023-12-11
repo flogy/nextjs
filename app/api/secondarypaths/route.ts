@@ -31,10 +31,22 @@ export async function POST(request: Request) {
   })
 
   const paths = await Promise.all(promises)
-  const resp = JSON.stringify(paths)
+
+  //const resp = JSON.stringify(paths)
   return NextResponse.json(paths)
   //return NextResponse.json(data)
 }
+
+export async function GET(req: NextRequest) {
+  const parentPathId = Number(req.nextUrl.searchParams.get("parentPathId"))
+  if (parentPathId) { 
+    const paths = await prisma.secondaryPaths.findMany({where: {parentPathId}})
+    console.log('what is fetched from db: ', paths)
+    return Response.json(paths)
+  }
+}
+
+
 
 
 // export const queryPaths = async (searchTerm: String) => {
