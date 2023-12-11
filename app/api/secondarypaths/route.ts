@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma"
 import { NextResponse } from "next/server"
 import { NextRequest } from "next/server"
+import type { PrimaryPaths } from "@prisma/client"
 
 //https://nextjs.org/docs/app/building-your-application/routing/route-handlers#static-route-handlers
 
@@ -20,27 +21,17 @@ import { NextRequest } from "next/server"
 export async function POST(request: Request) {
   const data = await request.json() //array with few entries (== max num of parent nodes)
   
-
   const promises = data.map(async path => {
-    await prisma.secondaryPaths.create(
-      {data:
-        { parentPathId: 34, parentNodeId: "test", reactFlowInstance: path.reactFlowInstance }
-      }
-    )
-
-
-    // await prisma.secondaryPaths.upsert({
-    //   where: { parentPathId: path.parentPathId, parentNodeId: path.parentNodeId },
-    //   update: { reactFlowInstance: path.reactFlowInstance },
-    //   create: { parentPathId: path.parentPathId, parentNodeId: path.parentNodeId, reactFlowInstance: path.reactFlowInstance },
-    // })
+    //const newPath = {id: 12} as PrimaryPaths
+    return await prisma.secondaryPaths.upsert({
+      where: { parentPathId: path.parentPathId, parentNodeId: path.parentNodeId },
+      update: { reactFlowInstance: path.reactFlowInstance },
+      create: { parentPathId: path.parentPathId, parentNodeId: path.parentNodeId, reactFlowInstance: path.reactFlowInstance },
+    })
   })
-   
-  //const paths = await Promise.all(promises)
-  const paths = []
 
+  const paths = await Promise.all(promises)
   const resp = JSON.stringify(paths)
-
   return NextResponse.json(paths)
   //return NextResponse.json(data)
 }
