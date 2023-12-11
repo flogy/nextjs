@@ -12,9 +12,7 @@ export async function GET(req: NextRequest) {
   if (level){templates = await prisma.templates.findMany({where: {level: level}})}
   if (id){templates = await prisma.templates.findMany({where: {id: id}})}
 
-  console.log(templates)
   return Response.json({ templates })
-  //return NextResponse.json({data})
 }
 
 export async function POST(request: Request) {
@@ -29,17 +27,3 @@ export async function POST(request: Request) {
 
   return NextResponse.json(data)
 }
-
-
-// export const queryPaths = async (searchTerm: String) => {
-//   const query = await prisma.path.findMany({
-//       where: {
-//         OR: [
-//           {leistungsgruppe: {contains: searchTerm},},
-//           {name: {contains: searchTerm}}
-//         ]
-//       }
-//   })
-//   return query 
-// }
-

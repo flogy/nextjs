@@ -24,18 +24,3 @@ export async function POST(request: Request) {
         return new NextResponse('Success!', { status: 201 })
     }
 }
-
-
-
-// export const queryPaths = async (searchTerm: String) => {
-//   const query = await prisma.path.findMany({
-//       where: {
-//         OR: [
-//           {leistungsgruppe: {contains: searchTerm},},
-//           {name: {contains: searchTerm}}
-//         ]
-//       }
-//   })
-//   return query 
-// }
-

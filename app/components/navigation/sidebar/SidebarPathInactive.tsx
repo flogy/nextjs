@@ -27,7 +27,7 @@ const SidebarPathInactive = ({setPathOpen, setCurrentPath}) => {
       </div>
 
       {/* open an existing path */}
-      <button className={`sidebar-button ${!open ? "px-2.5" : "px-4"} ${openMenu ? "bg-white/30" : "bg-white/10"} `} onClick={() => setOpenMenu(!openMenu)}>
+      <button className={`sidebar-button ${!open ? "px-2.5" : "px-4"} ${openMenu ? "bg-white/30" : "bg-white/10"} `} onClick={() => {setOpen(true);setOpenMenu(!openMenu)}}>
         <FaRegFolderOpen className={`sidebar-button-icon ${open && "mr-2"}`} />
         <p className={`sidebar-button-text ${!open && "hidden"}`}>Open..</p>
       </button>
@@ -41,7 +41,7 @@ const SidebarPathInactive = ({setPathOpen, setCurrentPath}) => {
 
 
       {/* fixme import path from somewhere */}
-      <button className={`sidebar-button ${!open ? "px-2.5" : "px-4"} ${importMenu ? "bg-white/30" : "bg-white/10"}`} onClick={() => setImportMenu(!importMenu)}>
+      <button className={`sidebar-button ${!open ? "px-2.5" : "px-4"} ${importMenu ? "bg-white/30" : "bg-white/10"}`} onClick={() => {setOpen(true);setImportMenu(!importMenu)}}>
         <FaFileImport className={`sidebar-button-icon ${open && "mr-2"}`} />
         <p className={`sidebar-button-text ${!open && "hidden"}`}>Import..</p>
       </button>
@@ -52,7 +52,7 @@ const SidebarPathInactive = ({setPathOpen, setCurrentPath}) => {
       : null}
 
       {/* create new path */}
-      <button className={`sidebar-button ${!open ? "px-2.5" : "px-4"} ${createMenu ? "bg-white/30" : "bg-white/10"} `} onClick={() => setCreateMenu(!createMenu)}>
+      <button className={`sidebar-button ${!open ? "px-2.5" : "px-4"} ${createMenu ? "bg-white/30" : "bg-white/10"} `} onClick={() => {setOpen(true);setCreateMenu(!createMenu)}}>
         <FaRegPlusSquare className={`sidebar-button-icon ${open && "mr-2"}`} />
         <p className={`sidebar-button-text ${!open && "hidden"}`}>Create New..</p>
       </button>

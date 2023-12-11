@@ -35,25 +35,20 @@ const page = () => {
     //get all secondary paths associated to parent path
     const sec_response = await fetch(`http://localhost:3000/api/secondarypaths?parentPathId=${id}`)
     const paths  = await sec_response.json()
-    console.log('paths received: ', paths)
 
     if (paths){
       const newSecPaths = paths.map(res => {
         return {...res, reactFlowInstance: JSON.parse(res.reactFlowInstance)}
       })
-      console.log('paths after map: ', newSecPaths)
       setAllSecPaths(newSecPaths)
     }
   },[])
 
 
   const syncSecondaryPaths = useCallback(async () => {
-    //const flow_str = JSON.stringify(flow)
     const submitData = allSecPaths.map(res => {
       return {...res, reactFlowInstance: JSON.stringify(res.reactFlowInstance)}
     })
-
-    //console.log("what is sent to the api: ", JSON.stringify(submitData))
 
     const res = await fetch('http://localhost:3000/api/secondarypaths',
       {
@@ -65,12 +60,6 @@ const page = () => {
       })
     if (!res.ok){
       console.log("Debug: POST didn't work please try again.")
-    } else {
-      const response = await res.json()
-      const newSecPaths = response.map(res => {
-        return {...res, reactFlowInstance: JSON.parse(res.reactFlowInstance)}
-      })
-      //setAllSecPaths(newSecPaths)
     }
   }, [allSecPaths])
 
@@ -127,10 +116,6 @@ const page = () => {
     setPrevisouslySelectedPrimNode(selectedPrimNode)
   }, [selectedPrimNode])
 
-
-
-
-
   const onSave = async() => {
     var url, submitData
 
@@ -140,7 +125,6 @@ const page = () => {
       const flow = reactFlowInstancePrimary.toObject();
       const reactFlowInstance = JSON.stringify(flow)
       submitData = {parentPathId: currentPath.id, reactFlowInstance}
-      console.log(submitData)
       const res = await fetch(url,
       {
         method: 'POST',
@@ -212,7 +196,7 @@ const page = () => {
       {pathOpen ? 
         <div className='flex flex-col flex-1 gap-6'>
           {/* primary flow chart editor */}
-          <div className='flex basis-2/6 flex-col border-4 border-slate-300'>
+          <div className='flex basis-2/6 flex-col border-4 w-full border-slate-300'>
             <h2 className='text-3xl text-center bg-slate-300'>Overview Path</h2>
             <FlowChartEditor 
               level='primary' //needed
@@ -226,7 +210,7 @@ const page = () => {
           </div>
 
           {/* secondary flow chart editor */}
-          <div className={`flex flex-col border-4 border-slate-300 ${selectableNode ? 'basis-4/6' : 'hidden basis-0'}`}>
+          <div className={`flex flex-col border-4 border-slate-300 w-full ${selectableNode ? 'basis-4/6' : 'hidden basis-0'}`}>
             <h2 className='text-3xl text-center bg-slate-300'>{selectedPrimNode && selectableNode && 'Detail View: ' + selectedPrimNode.data.label}</h2>
             <FlowChartEditor 
               level={'secondary'} //neded

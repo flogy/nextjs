@@ -19,8 +19,14 @@ const PathwayCreatorControls = ({level, onSave, onRestore, editableFlowCanvas, s
   const { data, isLoading, error } = useSWR(`/api/templates?level=${level}`, fetcher)
 
   useEffect(() => {
-    if(data) {setAllTemplatePaths(data.templates)}
-  },[data])
+    if (!isLoading && data.templates){
+      const templates = data.templates.map(template => {
+        return {...template, reactFlowInstance: JSON.parse(template.reactFlowInstance)}
+      })
+      setAllTemplatePaths(templates)
+      }
+
+  },[data, isLoading])
   
   //for dropdown menu (load template)
   var templates = allTemplatePaths.map(path => (
@@ -29,9 +35,9 @@ const PathwayCreatorControls = ({level, onSave, onRestore, editableFlowCanvas, s
 
   //set reactFlowInstance according to DB version
   function handleLoadTemplate(){
-    const path = allTemplatePaths.filter(path => (path.id === templateToLoad.key))
-    onRestore(JSON.parse(path[0].reactFlowInstance))
-    setTemplateToLoad({})
+    const path = allTemplatePaths.filter(path => (path.id === templateToLoad.id))
+    onRestore(path[0].reactFlowInstance)
+    //setTemplateToLoad({})
     load_popup_ref.current.close()
   }
 
@@ -74,7 +80,7 @@ const PathwayCreatorControls = ({level, onSave, onRestore, editableFlowCanvas, s
         <Popup 
           trigger={
             <button className={`py-2 px-2 text-xl focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700`}>
-              <BiImport />
+              <BiExport />
             </button>
           } 
           position={'left center'}
@@ -99,7 +105,7 @@ const PathwayCreatorControls = ({level, onSave, onRestore, editableFlowCanvas, s
         <Popup 
           trigger={
             <button className={`py-2 px-2 text-xl focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700`}>
-              <BiExport/>
+              <BiImport/>
             </button>
           } 
           position={'left center'}

@@ -22,28 +22,7 @@ const SidebarPathActive = ({setPathOpen, currentPath, onSave, onClose, onDelete}
   const delete_popup_ref = useRef();
   const close_popup_ref = useRef();
   const [open, setOpen]  = useState(true)
-  const [openMenuTemplates, setOpenMenuTemplates] = useState(false)
 
-  const [createOpen, setCreateOpen] = useState(false)
-  const [openPath, setOpenPath] = useState(false)
-
-  
-  // const handleNewPathSubmit = (e) => {
-  //   e.preventDefault()
-  //   const pathName = e.target.newPathName.value;
-  //   const parentId = e.target.parentId.value;
-
-  //   const uuid = short.generate()
-    
-  //   const newPath = {uuid: uuid, name: pathName, parentId: parentId}
-  //   setCurrentPath(newPath)
-
-  //   const updatedPaths = [ ...pathList, newPath]
-  //   setPathList(updatedPaths)
-
-  //   e.target.reset()
-  //   setCreateOpen(false)
-  // }
 
 function handleClose(save){
   if(save){onSave()}
@@ -72,22 +51,6 @@ function handleDelete(){
         <p className="text-xs text-gray-400">Now editing:</p>
         <p>{currentPath.name}</p>
       </aside>
-
-      {/* ${importMenu ? "bg-white/30" : "bg-white/10"} */}
-
-      {/* start from template */}
-      {/* <button className={`sidebar-button bg-white/10 ${!open ? "px-2.5" : "px-4"}`} onClick={() => setOpenMenuTemplates(!openMenuTemplates)}>
-        <FaBuffer className={`sidebar-button-icon ${open && "mr-2"}`} />
-        <p className={`sidebar-button-text ${!open && "hidden"}`}>Templates</p>
-      </button>
-
-      {open && openMenuTemplates ?
-        <SubMenuTemplates
-          setCurrentPath={setCurrentPath}
-          setPathOpen={setPathOpen}
-        />
-      : null} */}
-
 
       {/* save path */}
       <button className={`sidebar-button bg-white/10 ${!open ? "px-2.5" : "px-4"}`} onClick={() => onSave()}>

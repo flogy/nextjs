@@ -38,6 +38,7 @@ const SubMenuCreate = ({setCurrentPath, setPathOpen}) => {
           className='border h-8 p-1'
           id="perf_group"
           type="text"
+          placeholder="E.g. A, B or C"
           required
           value={perfGroup}
           onChange={(e) => setPerfGroup(e.target.value)}
@@ -48,6 +49,7 @@ const SubMenuCreate = ({setCurrentPath, setPathOpen}) => {
           className="border h-8 p-1"
           id="perf_group_name"
           type="text" 
+          placeholder='E.g. Test'
           required
           value={name}
           onChange={(e) => setName(e.target.value)}

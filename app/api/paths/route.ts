@@ -6,7 +6,6 @@ import { NextResponse } from "next/server"
 export async function GET() {
   const paths = await prisma.paths.findMany()
   return Response.json({ paths })
-  //return NextResponse.json({data})
 }
 
 export async function POST(request: Request, res: Response) {

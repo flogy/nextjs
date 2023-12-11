@@ -28,7 +28,7 @@ const nodeTypes = {
 const short = require('short-uuid')
 const getId = () => `${short.generate()}`;
 
-const FlowChartEditor = ({level, pathOpen, setSelectedPrimNode, setSelectedSecNode, reactFlowInstanceInit, reactFlowInstance, setReactFlowInstance}) => {
+const FlowChartEditor = ({level, setSelectedPrimNode, setSelectedSecNode, reactFlowInstanceInit, reactFlowInstance, setReactFlowInstance}) => {
   // level: <'primay' or 'seconday'> identifies the flowchart editor in the GUI (primary = top)
   // selectedPrimNode/setSelectedPrimNode: node selected in primary editor
   // setSelectedSecNode: node selected in seconday editor
@@ -50,6 +50,7 @@ const FlowChartEditor = ({level, pathOpen, setSelectedPrimNode, setSelectedSecNo
   //when a new flowInstance is set from the parent then load it
   useEffect(() => {
     if (reactFlowInstanceInit){
+      //unselect all selected nodes
       onRestore(reactFlowInstanceInit)
     } 
   }, [reactFlowInstanceInit])
@@ -169,7 +170,6 @@ const FlowChartEditor = ({level, pathOpen, setSelectedPrimNode, setSelectedSecNo
     [reactFlowInstance, nodes],
   );
 
-  //continue here: find a way to only use one function for saving templates and paths (primary/secondary)
   const onSave = useCallback(() => {
     if (reactFlowInstance) {
       const flow = reactFlowInstance.toObject();
@@ -222,11 +222,10 @@ const FlowChartEditor = ({level, pathOpen, setSelectedPrimNode, setSelectedSecNo
   );
 };
 
-export default ({level, pathOpen, setSelectedPrimNode, setSelectedSecNode, reactFlowInstanceInit, reactFlowInstance, setReactFlowInstance}) => (
+export default ({level, setSelectedPrimNode, setSelectedSecNode, reactFlowInstanceInit, reactFlowInstance, setReactFlowInstance}) => (
   <ReactFlowProvider>
     <FlowChartEditor
       level={level}
-      pathOpen={pathOpen}
       setSelectedPrimNode={setSelectedPrimNode}
       setSelectedSecNode={setSelectedSecNode}
       reactFlowInstanceInit={reactFlowInstanceInit}
