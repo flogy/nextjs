@@ -7,16 +7,14 @@ import { BiImport, BiExport } from "react-icons/bi";
 import ComboboxSelect from '@/app/components/navigation/sidebar/utils/ComboboxSelect';
 
 const PathwayCreatorControls = ({level, onSave, onRestore, editableFlowCanvas, setEditableFlowCanvas}) => {
-  const { mutate } = useSWRConfig() //fixme: should in theory revalidate template list but doesn't
   const load_popup_ref = useRef()
   const save_popup_ref = useRef()
   const [templateTitle, setTemplateTitle] = useState('')
   const [templateToLoad, setTemplateToLoad] = useState(null)
-  const [allTemplatePaths, setAllTemplatePaths] = useState([])
 
   // fetch available template paths
   const fetcher = (url:URL) => fetch(url).then((res) => res.json());
-  const { data, isLoading, error } = useSWR(`/api/templates?level=${level}`, fetcher)
+  const { data, isLoading, error, mutate } = useSWR(`/api/templates?level=${level}`, fetcher)
 
   useEffect(() => {
     if (!isLoading && data.templates){
@@ -63,7 +61,7 @@ const PathwayCreatorControls = ({level, onSave, onRestore, editableFlowCanvas, s
     }
 
     setTemplateTitle('')
-    mutate('/api/templates')
+    mutate()
     save_popup_ref.current.close()
   }
 
