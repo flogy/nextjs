@@ -195,15 +195,10 @@ const FlowChartEditor = ({level, setSelectedPrimNode, setSelectedSecNode, reactF
   );
 };
 
-export default ({level, setSelectedPrimNode, setSelectedSecNode, reactFlowInstanceInit, reactFlowInstance, setReactFlowInstance}) => (
+export default (props) => (
   <ReactFlowProvider>
     <FlowChartEditor
-      level={level}
-      setSelectedPrimNode={setSelectedPrimNode}
-      setSelectedSecNode={setSelectedSecNode}
-      reactFlowInstanceInit={reactFlowInstanceInit}
-      reactFlowInstance={reactFlowInstance}
-      setReactFlowInstance={setReactFlowInstance}
+      {...props}
     />
   </ReactFlowProvider>
 );
