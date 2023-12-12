@@ -16,16 +16,10 @@ const PathwayCreatorControls = ({level, onSave, onRestore, editableFlowCanvas, s
   const fetcher = (url:URL) => fetch(url).then((res) => res.json());
   const { data, isLoading, error, mutate } = useSWR(`/api/templates?level=${level}`, fetcher)
 
-  useEffect(() => {
-    if (!isLoading && data.templates){
-      const templates = data.templates.map(template => {
-        return {...template, reactFlowInstance: JSON.parse(template.reactFlowInstance)}
-      })
-      setAllTemplatePaths(templates)
-      }
+  const allTemplatePaths = !isLoading && data?.templates ? data.templates.map(template => {
+    return {...template, reactFlowInstance: JSON.parse(template.reactFlowInstance)}
+  }) : [];
 
-  },[data, isLoading])
-  
   //for dropdown menu (load template)
   var templates = allTemplatePaths.map(path => (
     {key: path.id, value: path.name}
