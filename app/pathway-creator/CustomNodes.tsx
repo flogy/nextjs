@@ -14,7 +14,7 @@ export const StartNode = function CustomNode({id, data}) {
   );
 }
 
-export const RoutineNode = function CustomNode({id, data}) {
+export const RoutineNode = function CustomNode({id, data, selected}) {
   const updateNodeInternals = useUpdateNodeInternals();
   const [label, setLabel] = useState<string>(data.label)
   const [width, setWidth] = useState(data.width)
@@ -26,7 +26,7 @@ export const RoutineNode = function CustomNode({id, data}) {
   }
 
   return (
-    <div className={`flex justify-center ${data.selected ? 'bg-red-500' : 'bg-cyan-600'} h-12 ${width < 10 && 'w-32' || width >=10 && 'w-72'}`}>
+    <div className={`${data.disabled && 'pointer-events-none'} flex justify-center ${selected ? 'bg-red-500' : 'bg-cyan-600'} h-12 ${width < 10 && 'w-32' || width >=10 && 'w-72'}`}>
       <div className={`flex flex-col justify-center items-center h-12 border-r-4 border-l-4 ${width < 10 && 'w-28' || width >=10 && 'w-[68]'}`}>
         <input 
           type="text" 

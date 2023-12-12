@@ -35,10 +35,10 @@ const FlowChartEditor = ({level, setSelectedPrimNode, setSelectedSecNode, reactF
   const reactFlowWrapper = useRef(null);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [selectedNodes, setSelectedNodes] = useState([]);
   const { setViewport } = useReactFlow();
   const [editableFlowCanvas, setEditableFlowCanvas] = useState(true)
 
+  const selectedNodes = nodes.filter(node => node.selected);
 
   //keep track of renders
   // const rendercount = useRef(0)
@@ -66,65 +66,38 @@ const FlowChartEditor = ({level, setSelectedPrimNode, setSelectedSecNode, reactF
   useEffect(() => {    
     //when a node is selected we set its selection property to true and the deletable property to false
     //deletable is false for all nodes when editableFlowCanvas is false (so that elements in the sub-flowchart can be deleted without deleting the elmenent in the parent)
-
-    const newNodes = nodes.map((node) => {
-      var nde;
-      if(selectedNodes.includes(node.id)){
-        nde = {...node}
-        nde.data =  {...nde.data, selected: true} 
-      } else {
-        nde = {...node}
-        nde.data =  {...nde.data, selected: false} 
-      }
-      return nde
-    })
-
-    setNodes(newNodes)
-  }, [selectedNodes])
-
-
-  useEffect(() => {    
-    //when a node is selected we set its selection property to true and the deletable property to false
-    //deletable is false for all nodes when editableFlowCanvas is false (so that elements in the sub-flowchart can be deleted without deleting the elmenent in the parent)
     const newNodes = nodes.map((node) => {
       var nde;
       if(editableFlowCanvas){
-        nde = {...node, deletable: true}
-        nde.data = { ...nde.data, disabled:false, selected: false}
+        nde = {...node, deletable: true, selected: false}
+        nde.data = { ...nde.data, disabled:false}
       } else {
-        nde = {...node, deletable: false}
-        nde.data = {...nde.data, disabled:true, selected: false}
+        nde = {...node, deletable: false, selected: false}
+        nde.data = {...nde.data, disabled:true}
       }
       return nde
     })
 
-    setSelectedNodes([])
     if (level === 'primary') setSelectedPrimNode(null)
     if (level === 'secondary') setSelectedSecNode(null)
     setNodes(newNodes)
 
   }, [editableFlowCanvas])
 
-
-  useOnSelectionChange({
-    // when a node was selected we add its ID locally to selectedNodes and depening on which editor we are in also passing it to the parent element
-    onChange: ({ nodes }) => {
-      if (editableFlowCanvas){return}
-      setSelectedNodes(nodes.map((node) => node.id))
-      if (nodes.length === 1){ //we only want to handle this case
+  React.useEffect(() => {
+    if (editableFlowCanvas){return}
+      if (selectedNodes.length === 1){ //we only want to handle this case
         if (level === 'primary'){
-          setSelectedPrimNode(nodes[0])} //for primary (upper) editor
+          setSelectedPrimNode(selectedNodes[0])} //for primary (upper) editor
         if (level === 'secondary'){
-          setSelectedSecNode(nodes[0]) //for secondary (lower) editor
+          setSelectedSecNode(selectedNodes[0]) //for secondary (lower) editor
           }
       } else {
         setSelectedPrimNode(null)
         setSelectedSecNode(null)
         console.log('unexpected length of selectedNodes array.. ', selectedNodes)
       }
-    },      
-  })
-
+  }, [selectedNodes]);
 
   const onConnect = useCallback((params) => {
     if (!editableFlowCanvas) return
